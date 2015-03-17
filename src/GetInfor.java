@@ -19,25 +19,32 @@ GetInfor(String path)
 {
 	this.path=path;
 }
+
 public String showCommit(String commit,String fileName)
 {
 	String Showcommand="git show "+commit+" "+fileName;
 	String output=executeCommand(Showcommand);
 	if(!output.isEmpty())
-		return output;
-	else 
-		return showCommit(commit+"^",fileName);
+	{
+	 if(output.substring(0, 4).equals("fatal"))
+			return "NoMoreCommit";
+	 else return output;
+	}
+	else return showCommit(commit+"^",fileName);
+		
 }
 
 //lineNumbers are the number of lines that we care in the next(newer) commit,we need find the correlation to the current commit. 
-public CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, String fileName,Set<Integer> lineNumbers) throws ParseException
+public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, String fileName,Set<Integer> lineNumbers) throws ParseException
 {
 	 CommitInfo info=new CommitInfo();
-	String Showcommand="git show "+commit+" "+fileName;
-	String output=executeCommand(Showcommand);
+	String output=showCommit(commit,fileName);
+	if(output.equals("NoMoreCommit"))
+		return null;
 	int SHA1Start=output.indexOf("commit");
 	int SHA1Finish=output.indexOf("\n",SHA1Start+1);
 	String SHA1=output.substring(SHA1Start+7, SHA1Finish);
+//	System.out.println(SHA1);
 	info.setSHA1(SHA1);
 	boolean isMerge;
 	
@@ -47,23 +54,27 @@ public CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, String fil
 		int previousCommitFinish=output.indexOf(" ",previousCommitStart+7);
 		String previousCommit =output.substring(previousCommitStart+7, previousCommitFinish);
 		info.setPreviousCommitSHA1(previousCommit);
-		System.out.println("previousCommit: "+previousCommit);
+		//System.out.println("previousCommit: "+previousCommit);
 		info.setMergecommit(isMerge);
 		int previousCommitMergedFinish=output.indexOf("\n",previousCommitFinish+1);
 		String priviouseCommitMerged=output.substring(previousCommitFinish+1, previousCommitMergedFinish);
 		info.setPreviousCommitMergedSHA1(priviouseCommitMerged);
-		System.out.println("priviouseCommitMerged: "+priviouseCommitMerged);
+		//System.out.println("priviouseCommitMerged: "+priviouseCommitMerged);
 		}
 	else{
 		isMerge=false;
 		info.setMergecommit(isMerge);
 		//add the previousCommitSHA1
-//		String previouscommit=executeCommand("git show "+commit+"^ "+fileName);
-//		int preSHA1Start=previouscommit.indexOf("commit");
-//		int preSHA1Finish=previouscommit.indexOf("\n",preSHA1Start+1);
-//		String preSHA1=previouscommit.substring(preSHA1Start+7, preSHA1Finish);
-//		info.setPreviousCommitSHA1(preSHA1);
-//		
+		String previouscommit= output=showCommit(commit+"^",fileName);
+		if(previouscommit.equals("NoMoreCommit"))
+			info.setPreviousCommitSHA1(previouscommit);
+		else
+		{
+		int preSHA1Start=previouscommit.indexOf("commit");
+		int preSHA1Finish=previouscommit.indexOf("\n",preSHA1Start+1);
+		String preSHA1=previouscommit.substring(preSHA1Start+7, preSHA1Finish);
+		info.setPreviousCommitSHA1(preSHA1);
+		}
 		}
 	
 	
@@ -80,8 +91,8 @@ public CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, String fil
 		info.setDate(dateCovered);
 
 		
-		System.out.println(dateCovered);	
-		System.out.println(isMerge+" "+author);
+		//System.out.println(dateCovered);	
+		//System.out.println(isMerge+" "+author);
 		
 		if(lineNumbers==null)
 		{
@@ -96,7 +107,7 @@ public CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, String fil
 					lineCode++;
 				}
 			info.setLines(Setlines);
-			System.out.println(Setlines.toString());
+		//	System.out.println(Setlines.toString());
 			return info;
 		}
 		else
@@ -104,7 +115,7 @@ public CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, String fil
 			String diffoutput=executeCommand("git diff "+NextCommit.getSHA1()+" "+commit);
 			Vector<TreeMap<Integer,Line>> result=matchUnchanged(diffoutput,lineNumbers,NextCommit);
 			info.addLines(result.get(0));	
-			info.addLines(matchChanged(result.get(1),result.get(2)));			
+			//info.addLines(matchChanged(result.get(1),result.get(2)));			
 			return info;
 		}
 
@@ -113,19 +124,26 @@ public CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, String fil
 	 
 }
 
-public TreeMap<Integer,Line> matchChanged(TreeMap<Integer,Line> InOlderCommit,TreeMap<Integer,Line> InNewerCommit)
+public final TreeMap<Integer,Line> matchChanged(TreeMap<Integer,Line> InOlderCommit,TreeMap<Integer,Line> InNewerCommit)
 {
 	return new TreeMap<Integer,Line>();
 	
 }
 // the lines not in diff report that means have not be changed including the changes of lineNumber.
-public Vector<TreeMap<Integer,Line>>  matchUnchanged(String diffOutPut,Set<Integer> lineNumbers,CommitInfo NextCommit)
+public final Vector<TreeMap<Integer,Line>>  matchUnchanged(String diffOutPut,Set<Integer> lineNumbers,CommitInfo NextCommit)
 {
-	TreeMap<Integer,Line> Unchanged= new TreeMap<Integer,Line>();
+	TreeMap<Integer,Line>   Unchanged= new TreeMap<Integer,Line>();
 	TreeMap<Integer,Line> InOlderCommit= new TreeMap<Integer,Line>();
 	TreeMap<Integer,Line> InNewerCommit= new TreeMap<Integer,Line>();
+	Vector<TreeMap<Integer,Line>> resultSet=new Vector<TreeMap<Integer,Line>>();
+	resultSet.add(Unchanged);
+	resultSet.add(InOlderCommit);
+	resultSet.add(InNewerCommit);
 
 	DiffRange spans=FindDiffSpan(diffOutPut);
+	if(diffOutPut.indexOf("@@")==-1)
+		return resultSet ;
+
 	diffOutPut=diffOutPut.substring(diffOutPut.indexOf("@@"));
 	String[] SplitedOutPut =diffOutPut.split("\n");
 	// minus represents current commit
@@ -162,7 +180,6 @@ public Vector<TreeMap<Integer,Line>>  matchUnchanged(String diffOutPut,Set<Integ
 			//collect the changed informaiton
 		}
 		//lines belong to current commit
-
 		else if(a.charAt(0)=='+')
 		{
 			plusCounter++;
@@ -172,18 +189,18 @@ public Vector<TreeMap<Integer,Line>>  matchUnchanged(String diffOutPut,Set<Integ
 		}
 		else if(a.charAt(0)==' ')
 		{
+			if(lineNumbers.contains((minusCounter+1)))
+			{
 			Line LineTemp=new Line(NextCommit.getLine(minusCounter+1).getContent(),minusCounter+1);
 			Unchanged.put(plusCounter+1, LineTemp);
+			}
 			plusCounter++;
 			minusCounter++;
 		}
 	}
-	Vector<TreeMap<Integer,Line>> resultSet=new Vector<TreeMap<Integer,Line>>();
-	resultSet.add(Unchanged);
-	resultSet.add(InOlderCommit);
-	resultSet.add(InNewerCommit);
-	System.out.println("InOlderCommit: "+InOlderCommit);
-	System.out.println("InNewerCommit: "+InNewerCommit);
+
+	//System.out.println("InOlderCommit: "+InOlderCommit);
+	//System.out.println("InNewerCommit: "+InNewerCommit);
 
 	return resultSet;
 	
