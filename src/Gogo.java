@@ -1,6 +1,7 @@
 import java.text.ParseException;
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 
@@ -26,8 +27,40 @@ public static void main(String[] args) throws Exception {
 	runRecrusive(commit);
 	}
 	else System.out.println("this file has no history");
+	PrintHistory(commit);
+	//System.out.println(CommitInfoContainer);
+}
 
-	System.out.println(CommitInfoContainer);
+public static void PrintHistory(CommitInfo lastCommit)
+{
+	for (Integer a:lastCommit.getLines().keySet())
+	{
+		System.out.printf("commit:%s ,line number:%d ,content:%s \n",lastCommit.getSHA1().substring(0, 6),a,lastCommit.getLines().get(a).getContent());
+		Integer lineNumber =a;
+
+		while(true)
+		{
+		if(lastCommit.getPreviousCommitSHA1().equals("NoMoreCommit"))
+			break;
+		else{
+			String Showcommand="git show "+lastCommit.getPreviousCommitSHA1()+" "+fileName;
+			String output=getinfor.executeCommand(Showcommand);
+			TreeMap<Integer, Line> lines=CommitInfoContainer.get(lastCommit.getPreviousCommitSHA1()).getLines();
+			for (Integer b:lines.keySet())
+			{
+				if(lines.get(b).getFutureLineNumber()==lineNumber)
+				{
+				System.out.printf("commit:%s ,line number:%d ,content:%s \n",lastCommit.getPreviousCommitSHA1().substring(0, 6),
+						b,lines.get(b).getContent());
+				System.out.println();
+				System.out.println();
+				lineNumber=b;
+				lastCommit=CommitInfoContainer.get(CommitInfoContainer.get(lastCommit.getPreviousCommitSHA1()));
+				}
+			}
+		}
+		}
+	}
 }
 //run recursively get previous/older commit info.
 public static void runRecrusive(CommitInfo commit ) throws ParseException
