@@ -36,56 +36,74 @@ public static void PrintHistory(CommitInfo lastCommit)
 	for (Integer a:lastCommit.getLines().keySet())
 	{
 		System.out.println(a+"st line: ");
-		System.out.printf("commit:%s ,line number:%d ,content:%s \n",lastCommit.getSHA1().substring(0, 6),a,lastCommit.getLines().get(a).getContent());
+		System.out.printf("commit:%s ,line number:%d ,content:%s \n",lastCommit.getSHA1().substring(0, 6),
+				a,lastCommit.getLines().get(a).getContent());
 		Integer lineNumber =a;
 		CommitInfo tempCommit=lastCommit.deepClone(lastCommit);
-		//find the histroy of line a
+		//find the histroy of line 'a'
 		outer: while(true)
 		{
+			//commit have no previous commit or commit have more lines we care
 		if(tempCommit.getPreviousCommitSHA1().equals("NoMoreCommit")||tempCommit.getLines().isEmpty())
 		{
 			System.out.println();
 			break outer;
 		}
+		
 		else{
-			
 			TreeMap<Integer, Line> lines=CommitInfoContainer.get(tempCommit.getPreviousCommitSHA1()).getLines();
-			if(lines.isEmpty())
+			int temp=matchLine(lines,lineNumber,tempCommit.getPreviousCommitSHA1().substring(0, 6));
+		//if we found it in the previous commit
+			if(temp!=0)
 			{
+				lineNumber=temp;
+				tempCommit=CommitInfoContainer.get(tempCommit.getPreviousCommitSHA1());
+			}
+			//if we found it in the previous merge commit if it has one
+			else if(tempCommit.isMergecommit())
+				{
+					TreeMap<Integer, Line> linesMerge=CommitInfoContainer.get(tempCommit.getPreviousCommitMergedSHA1()).getLines();
+					 temp=matchLine(linesMerge,lineNumber,tempCommit.getPreviousCommitMergedSHA1().substring(0, 6));
+						if(temp!=0)
+						{
+							lineNumber=temp;
+							tempCommit=CommitInfoContainer.get(tempCommit.getPreviousCommitMergedSHA1());
+						}
+						
+				}
+			//other wise find process terminate.
+			else{	
 				System.out.println();
 				break outer;
 			}
-			//find if the line b in older Commit matchs line a
-			int counter=0;
-			inner: for (Integer b:lines.keySet())
-			{
-				
-				if(lines.get(b).getFutureLineNumber()==lineNumber)
-				{
-				System.out.printf("commit:%s ,line number:%d ,content:%s \n",tempCommit.getPreviousCommitSHA1().substring(0, 6),
-						b,lines.get(b).getContent());
-		
-				lineNumber=b;
-				tempCommit=CommitInfoContainer.get(tempCommit.getPreviousCommitSHA1());
-				break inner;
-				}
-				else
-				{
-					counter++;
-					if(counter==lines.keySet().size())
-					{
-						//if can not find one, means line a is created in the next commit
-						System.out.println();
-						break outer;
-					}
-				}
-
-			}
-		
+			
 		}
 		}
 	}
 }
+//match line from previous commit to current commit
+public static int matchLine(TreeMap<Integer, Line> lines ,int lineNumber,String commit)
+{
+	if(lines.isEmpty())
+	{
+		System.out.println();
+		return 0;
+	}
+	 for (Integer b:lines.keySet())
+	{
+		
+		if(lines.get(b).getFutureLineNumber()==lineNumber)
+		{
+		System.out.printf("commit:%s ,line number:%d ,content:%s \n",commit,
+				b,lines.get(b).getContent());
+
+		return b;
+		}
+	
+	}
+	 return 0;
+}
+
 //run recursively get previous/older commit info.
 public static void runRecrusive(CommitInfo commit ) throws ParseException
 {
