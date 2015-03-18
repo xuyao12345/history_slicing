@@ -3,6 +3,8 @@ import java.util.TreeMap;
 
 public class BlockAlgorithm {
 	public static TreeMap<Integer,Line> BlockAlgorithm(TreeMap oldcommit, TreeMap newcommit,int editdistance){
+		if(newcommit.isEmpty()||oldcommit.isEmpty())
+			return new TreeMap<Integer,Line>();
 		Integer[] oldcommitK = (Integer[]) oldcommit.keySet().toArray(new Integer[oldcommit.size()]);
 		Integer[] newcommitK = (Integer[]) newcommit.keySet().toArray(new Integer[newcommit.size()]);
 		

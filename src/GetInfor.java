@@ -126,7 +126,8 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			String diffoutput=executeCommand("git diff "+NextCommit.getSHA1()+" "+commit);
 			Vector<TreeMap<Integer,Line>> result=matchUnchanged(diffoutput,lineNumbers,NextCommit);
 			info.addLines(result.get(0));	
-			//info.addLines(matchChanged(result.get(1),result.get(2)));			
+			TreeMap<Integer,Line> temp=BlockAlgorithm.BlockAlgorithm(result.get(1),result.get(2),10);
+			
 			return info;
 		}
 
@@ -276,18 +277,18 @@ File dir=new File(path);
 	return output.toString();
 
 }
-public static void main(String[] args) throws ParseException
-{
-	GetInfor getinfor= new GetInfor("/Users/sea/Downloads/bash2");
-	CommitInfo newCommit=	getinfor.getCommitInfor(null, "HEAD", "original", null);
-//	System.out.println(lastCommit);
-	TreeSet<Integer> number=new TreeSet<Integer>(); 
-	for( int a=0;a<28;a++)
-	{
-		number.add(a+1);
-	}
-	CommitInfo olderCommit=	getinfor.getCommitInfor(newCommit, "HEAD^^", "original", number);
-
-	System.out.println(olderCommit);
-}
+//public static void main(String[] args) throws ParseException
+//{
+//	GetInfor getinfor= new GetInfor("/Users/sea/Downloads/bash2");
+//	CommitInfo newCommit=	getinfor.getCommitInfor(null, "HEAD", "original", null);
+////	System.out.println(lastCommit);
+//	TreeSet<Integer> number=new TreeSet<Integer>(); 
+//	for( int a=0;a<28;a++)
+//	{
+//		number.add(a+1);
+//	}
+//	CommitInfo olderCommit=	getinfor.getCommitInfor(newCommit, "HEAD^^", "original", number);
+//
+//	System.out.println(olderCommit);
+//}
 }
