@@ -57,12 +57,18 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 		int previousCommitStart=output.indexOf("Merge:");
 		int previousCommitFinish=output.indexOf(" ",previousCommitStart+7);
 		String previousCommit =output.substring(previousCommitStart+7, previousCommitFinish);
+	
+		String Showcommand="git show "+previousCommit+" "+fileName;
+		previousCommit=executeCommand(Showcommand);
+		previousCommit=FindSHA1(previousCommit);
+		info.setPreviousCommitSHA1(previousCommit);
+		
 		info.setPreviousCommitSHA1(previousCommit);
 		//System.out.println("previousCommit: "+previousCommit);
 		info.setMergecommit(isMerge);
 		int previousCommitMergedFinish=output.indexOf("\n",previousCommitFinish+1);
 		String priviouseCommitMerged=output.substring(previousCommitFinish+1, previousCommitMergedFinish);
-		String Showcommand="git show "+priviouseCommitMerged+" "+fileName;
+		Showcommand="git show "+priviouseCommitMerged+" "+fileName;
 		 priviouseCommitMerged=executeCommand(Showcommand);
 		 priviouseCommitMerged=FindSHA1(priviouseCommitMerged);
 		info.setPreviousCommitMergedSHA1(priviouseCommitMerged);
@@ -72,14 +78,12 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 		isMerge=false;
 		info.setMergecommit(isMerge);
 		//add the previousCommitSHA1
-		String previouscommit= output=showCommit(commit+"^",fileName);
+		String previouscommit=showCommit(commit+"^",fileName);
 		if(previouscommit.equals("NoMoreCommit"))
 			info.setPreviousCommitSHA1(previouscommit);
 		else
 		{
-		int preSHA1Start=previouscommit.indexOf("commit");
-		int preSHA1Finish=previouscommit.indexOf("\n",preSHA1Start+1);
-		String preSHA1=previouscommit.substring(preSHA1Start+7, preSHA1Finish);
+		String preSHA1=FindSHA1(previouscommit);
 		info.setPreviousCommitSHA1(preSHA1);
 		}
 		}

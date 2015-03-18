@@ -2,6 +2,8 @@ import java.util.Date;
 import java.util.TreeMap;
 import java.util.Map;
 
+import com.rits.cloning.Cloner;
+
 
 
 public class CommitInfo {
@@ -20,7 +22,13 @@ public CommitInfo() {
 	
 }
 
-
+public CommitInfo deepClone(CommitInfo info)
+{
+	 
+	Cloner cloner= new Cloner();
+	CommitInfo clone=cloner.deepClone(info);
+	return clone;
+}
 
 public String getAuthor() {
 	return author;
@@ -166,7 +174,7 @@ public String toString() {
 			+ "\n, previousCommitSHA1=" + previousCommitSHA1
 			+ "\n, previousCommitMergedSHA1=" + previousCommitMergedSHA1
 			+ ",\n Lines=\n " + Lines + ", author=" + author + ", date=" + date
-			+ "]";
+			+ "]\n";
 }
 }
 

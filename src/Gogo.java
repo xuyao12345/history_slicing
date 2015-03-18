@@ -27,36 +27,61 @@ public static void main(String[] args) throws Exception {
 	runRecrusive(commit);
 	}
 	else System.out.println("this file has no history");
-//	PrintHistory(commit);
-	System.out.println(CommitInfoContainer);
+	PrintHistory(commit);
+//	System.out.println(CommitInfoContainer);
 }
 
 public static void PrintHistory(CommitInfo lastCommit)
 {
 	for (Integer a:lastCommit.getLines().keySet())
 	{
+		System.out.println(a+"st line: ");
 		System.out.printf("commit:%s ,line number:%d ,content:%s \n",lastCommit.getSHA1().substring(0, 6),a,lastCommit.getLines().get(a).getContent());
 		Integer lineNumber =a;
-
-		while(true)
+		CommitInfo tempCommit=lastCommit.deepClone(lastCommit);
+		//find the histroy of line a
+		outer: while(true)
 		{
-		if(lastCommit.getPreviousCommitSHA1().equals("NoMoreCommit"))
-			break;
+		if(tempCommit.getPreviousCommitSHA1().equals("NoMoreCommit")||tempCommit.getLines().isEmpty())
+		{
+			System.out.println();
+			break outer;
+		}
 		else{
-		
-			TreeMap<Integer, Line> lines=CommitInfoContainer.get(lastCommit.getPreviousCommitSHA1()).getLines();
-			for (Integer b:lines.keySet())
+			
+			TreeMap<Integer, Line> lines=CommitInfoContainer.get(tempCommit.getPreviousCommitSHA1()).getLines();
+			if(lines.isEmpty())
 			{
+				System.out.println();
+				break outer;
+			}
+			//find if the line b in older Commit matchs line a
+			int counter=0;
+			inner: for (Integer b:lines.keySet())
+			{
+				
 				if(lines.get(b).getFutureLineNumber()==lineNumber)
 				{
-				System.out.printf("commit:%s ,line number:%d ,content:%s \n",lastCommit.getPreviousCommitSHA1().substring(0, 6),
+				System.out.printf("commit:%s ,line number:%d ,content:%s \n",tempCommit.getPreviousCommitSHA1().substring(0, 6),
 						b,lines.get(b).getContent());
-				System.out.println();
-				System.out.println();
+		
 				lineNumber=b;
-				lastCommit=CommitInfoContainer.get(CommitInfoContainer.get(lastCommit.getPreviousCommitSHA1()));
+				tempCommit=CommitInfoContainer.get(tempCommit.getPreviousCommitSHA1());
+				break inner;
 				}
+				else
+				{
+					counter++;
+					if(counter==lines.keySet().size())
+					{
+						//if can not find one, means line a is created in the next commit
+						System.out.println();
+						break outer;
+					}
+				}
+
 			}
+		
 		}
 		}
 	}
@@ -71,7 +96,12 @@ public static void runRecrusive(CommitInfo commit ) throws ParseException
 		fileName,commit.getLines().keySet());
 //		if(CommitInfoContainer.containsKey(previousCommit.getSHA1()))
 //			System.out.println(previousCommit.getSHA1()+" has been changed 1");
+		if(!CommitInfoContainer.containsKey(previousCommit.getSHA1()))
 		CommitInfoContainer.put(previousCommit.getSHA1(), previousCommit);
+		else
+		{
+			CommitInfoContainer.get(previousCommit.getSHA1()).addLines(previousCommit.getLines());
+		}
 		runRecrusive(previousCommit);
 	}
 	else
