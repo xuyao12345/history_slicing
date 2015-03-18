@@ -27,8 +27,8 @@ public static void main(String[] args) throws Exception {
 	runRecrusive(commit);
 	}
 	else System.out.println("this file has no history");
-	PrintHistory(commit);
-	//System.out.println(CommitInfoContainer);
+//	PrintHistory(commit);
+	System.out.println(CommitInfoContainer);
 }
 
 public static void PrintHistory(CommitInfo lastCommit)
@@ -43,8 +43,7 @@ public static void PrintHistory(CommitInfo lastCommit)
 		if(lastCommit.getPreviousCommitSHA1().equals("NoMoreCommit"))
 			break;
 		else{
-			String Showcommand="git show "+lastCommit.getPreviousCommitSHA1()+" "+fileName;
-			String output=getinfor.executeCommand(Showcommand);
+		
 			TreeMap<Integer, Line> lines=CommitInfoContainer.get(lastCommit.getPreviousCommitSHA1()).getLines();
 			for (Integer b:lines.keySet())
 			{

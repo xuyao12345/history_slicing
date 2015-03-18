@@ -34,6 +34,12 @@ public String showCommit(String commit,String fileName)
 		
 }
 
+ public String FindSHA1(String outputFromShow)
+ {
+	 int SHA1Start=outputFromShow.indexOf("commit");
+		int SHA1Finish=outputFromShow.indexOf("\n",SHA1Start+1);
+		return outputFromShow.substring(SHA1Start+7, SHA1Finish);
+ }
 //lineNumbers are the number of lines that we care in the next(newer) commit,we need find the correlation to the current commit. 
 public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, String fileName,Set<Integer> lineNumbers) throws ParseException
 {
@@ -41,9 +47,7 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 	String output=showCommit(commit,fileName);
 	if(output.equals("NoMoreCommit"))
 		return null;
-	int SHA1Start=output.indexOf("commit");
-	int SHA1Finish=output.indexOf("\n",SHA1Start+1);
-	String SHA1=output.substring(SHA1Start+7, SHA1Finish);
+	String SHA1=FindSHA1(output);
 //	System.out.println(SHA1);
 	info.setSHA1(SHA1);
 	boolean isMerge;
@@ -58,6 +62,9 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 		info.setMergecommit(isMerge);
 		int previousCommitMergedFinish=output.indexOf("\n",previousCommitFinish+1);
 		String priviouseCommitMerged=output.substring(previousCommitFinish+1, previousCommitMergedFinish);
+		String Showcommand="git show "+priviouseCommitMerged+" "+fileName;
+		 priviouseCommitMerged=executeCommand(Showcommand);
+		 priviouseCommitMerged=FindSHA1(priviouseCommitMerged);
 		info.setPreviousCommitMergedSHA1(priviouseCommitMerged);
 		//System.out.println("priviouseCommitMerged: "+priviouseCommitMerged);
 		}
