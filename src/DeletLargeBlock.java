@@ -5,7 +5,7 @@ public class DeletLargeBlock {
 		///first part : record the position to delete
 		Integer[] oldcommitK = (Integer[]) file.keySet().toArray(new Integer[file.size()]);
 		int threshold = 2;  // calculate threshold
-		int count = 0;
+		int count = 1;
 		Integer start, end;
 		start = oldcommitK[0];
 		Integer temp = oldcommitK[0];
@@ -17,21 +17,26 @@ public class DeletLargeBlock {
 				count++;
 				if((i+1) == file.size())
 				{
-					if(count >= threshold);
-					end = start+count;
-					DeleteContent.put(start, end);
+					if(count >= threshold)
+					{
+						end = start+count-1;
+						DeleteContent.put(start, end);
+						//System.out.println("lllll");
+						break;
+					}
 				}
+				continue;
 			}
 			else
 			{
 				if(count >= threshold)
 				{
-					end = start+count;
+					end = start+count-1;
 					DeleteContent.put(start, end);
 				}
 					start = oldcommitK[i];
 					temp = oldcommitK[i];
-					count = 0;
+					count = 1;
 			}
 		}
 		
@@ -41,9 +46,9 @@ public class DeletLargeBlock {
 		
 		for (int i=0; i<DeleteContent.size(); i++)
 		{
-			first =  i;
-			last = DeleteContent.get(i);
-			for(int number=first; number<=last; number++)
+			first =  tempdelete[i];
+			last = DeleteContent.get(first);
+			for(Integer number=first; number<=last; number++)
 			{
 				file.remove(number);
 			}
@@ -57,7 +62,9 @@ public class DeletLargeBlock {
 		TreeMap<Integer,Line> newC = new TreeMap<Integer,Line>();
 		oldC.put(1,new Line("abcdefgh",1));
 		oldC.put(2,new Line("abc",2));
-		oldC.put(3,new Line("lianjiayi",3));
+		oldC.put(4,new Line("lianjiayi",4));
+		oldC.put(6,new Line("lianjiayi",6));
+		oldC.put(7,new Line("lianjiayi",7));
 		
 		System.out.println(deletelargeBlock(oldC));
 	}
