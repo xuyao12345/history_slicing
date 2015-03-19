@@ -23,14 +23,29 @@ GetInfor(String path)
 public String showCommit(String commit,String fileName)
 {
 	String Showcommand="git show "+commit+" "+fileName;
-	String output=executeCommand(Showcommand);
-	if(!output.isEmpty())
+	String output=new String();
+	 output=executeCommand(Showcommand);
+	if(!(output==null))
 	{
-	 if(output.substring(0, 4).equals("fatal"))
+	 if(output.startsWith("fatal"))
 			return "NoMoreCommit";
 	 else return output;
 	}
-	else return showCommit(commit+"^",fileName);
+	else return "UnchangedCommit";
+		
+}
+public String showCommitRecurisive(String commit,String fileName)
+{
+	String Showcommand="git show "+commit+" "+fileName;
+	String output=new String();
+	 output=executeCommand(Showcommand);
+	if(!(output==null))
+	{
+	 if(output.startsWith("fatal"))
+			return "NoMoreCommit";
+	 else return output;
+	}
+	else return showCommitRecurisive( commit+"^",fileName);
 		
 }
 
@@ -47,6 +62,14 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 	String output=showCommit(commit,fileName);
 	if(output.equals("NoMoreCommit"))
 		return null;
+	boolean unchanged=false;
+	if(output.equals("UnchangedCommit"))
+	{
+		//get the unchanged commit informaiton;
+		 output=showCommit(commit,"");
+		 unchanged=true;
+
+	}
 	String SHA1=FindSHA1(output);
 //	System.out.println(SHA1);
 	info.setSHA1(SHA1);
@@ -102,6 +125,14 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 		info.setDate(dateCovered);
 
 		
+		if(unchanged==true)
+		{
+			for(Integer x : lineNumbers)
+			{
+				info.getLines().put(x, new Line(NextCommit.getLine(x).getContent(),x));
+			}
+			return info;
+		}
 		//System.out.println(dateCovered);	
 		//System.out.println(isMerge+" "+author);
 		
@@ -126,9 +157,14 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			String diffoutput=executeCommand("git diff "+NextCommit.getSHA1()+" "+commit);
 			Vector<TreeMap<Integer,Line>> result=matchUnchanged(diffoutput,lineNumbers,NextCommit);
 			info.addLines(result.get(0));	
-			TreeMap<Integer,Line> temp=BlockAlgorithm.BlockAlgorithm(result.get(1),result.get(2),10);
-			
+			Set<Integer> tempLineNumber= new TreeSet<Integer>(lineNumbers);
+			tempLineNumber.removeAll(result.get(0).keySet());
+			TreeMap<Integer,Line> temp=BlockAlgorithm.BlockAlgorithm(result.get(1),result.get(2),2);
+			temp.keySet().removeAll(tempLineNumber);
+			info.addLines(temp);	
+			System.out.println(info);
 			return info;
+			
 		}
 
 
@@ -269,13 +305,22 @@ File dir=new File(path);
 		while ((line = reader.readLine())!= null) {
 			output.append(line + "\n");
 		}
-
+	if(output.toString().isEmpty())
+	{
+		BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+		String result=new String();
+				result=stdError.readLine();
+		stdError.close();
+		return result;
+	}
+		
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
-
+	
 	return output.toString();
-
+	
+	
 }
 //public static void main(String[] args) throws ParseException
 //{

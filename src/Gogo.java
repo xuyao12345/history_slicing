@@ -4,6 +4,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.rits.cloning.Cloner;
+
 
 public class Gogo {
 	static String fileName;
@@ -17,19 +19,82 @@ public static void main(String[] args) throws Exception {
 	String CommitSHA1=new String();
 	if(args.length==3)
 	 CommitSHA1=args[2];
-	else CommitSHA1="HEAD";
+	else CommitSHA1="MASTER";
 	 getinfor=new GetInfor(FileDir);
 	 CommitInfoContainer=new Hashtable<String,CommitInfo>();
-	CommitInfo commit=getinfor.getCommitInfor(null, CommitSHA1, fileName, null);
+	 String VaildShowCommit=getinfor.showCommitRecurisive(CommitSHA1,fileName);
+	 VaildShowCommit=getinfor.FindSHA1(VaildShowCommit);
+	CommitInfo commit=getinfor.getCommitInfor(null, VaildShowCommit, fileName, null);
+	//go back to very beginning 
+	getinfor.executeCommand("git checkout "+CommitSHA1);
+	CommitInfo lastCommit=addUnchangedCommit(commit,CommitSHA1,true);
 	if(!commit.equals(null))
 	{
 	CommitInfoContainer.put(commit.getSHA1(), commit);
 	runRecrusive(commit);
 	}
 	else System.out.println("this file has no history");
-	PrintHistory(commit);
-//	System.out.println(CommitInfoContainer);
+	if(!lastCommit.equals(null))
+	{
+		for (Integer a:commit.getLines().keySet())
+		 {
+			commit.getLine(a).setFutureLineNumber(a);
+		 }
+	PrintHistory(lastCommit);
+	}
+	else PrintHistory(commit);
+	//System.out.println(CommitInfoContainer);
 }
+// add the commits that didnt changed the target file
+public static CommitInfo addUnchangedCommit(CommitInfo olderCommit,String newerCommit,boolean firstCommit)
+{
+	CommitInfo toBeReturn= new CommitInfo();
+	TreeMap<String,CommitInfo> result=new TreeMap<String,CommitInfo>();
+	while (true){
+	String Showresult=getinfor.executeCommand("git show "+newerCommit);
+	 String SHA1=getinfor.FindSHA1(Showresult);
+	 if(SHA1.contains(olderCommit.getSHA1()))
+	 {
+		 for(String a: result.keySet())
+		 {
+			 String  temp=result.get(a).getSHA1();
+			 String next=getinfor.executeCommand("git show "+temp+"^");
+			 result.get(a).setPreviousCommitSHA1(getinfor.FindSHA1(next));
+		 }
+		 CommitInfoContainer.putAll(result);
+		 return toBeReturn;
+	 }
+	 else 
+	 {
+		 CommitInfo temp=new CommitInfo();
+		 Cloner clone=new Cloner();
+		 temp.setSHA1(SHA1);
+		 temp.setMergecommit(false);
+		 temp.addLines(clone.deepClone(olderCommit.getLines()));
+		 
+	
+		 
+		 // add lines and date
+		 result.put(temp.getSHA1(),temp);
+		 newerCommit=newerCommit+"^";
+		 if(firstCommit)
+		 {
+			 firstCommit=false;
+			 toBeReturn=temp; 
+		 }
+		 else
+		 {
+			 for (Integer a:temp.getLines().keySet())
+			 {
+				 temp.getLine(a).setFutureLineNumber(a);
+			 }
+		 }
+	 }
+	 
+	 }
+}
+	 
+
 
 public static void PrintHistory(CommitInfo lastCommit)
 {
@@ -107,13 +172,15 @@ public static int matchLine(TreeMap<Integer, Line> lines ,int lineNumber,String 
 //run recursively get previous/older commit info.
 public static void runRecrusive(CommitInfo commit ) throws ParseException
 {
-	if(commit.getLines().isEmpty()) return;
+	if(commit.getLines().isEmpty()||commit.getPreviousCommitSHA1().contains("NoMoreCommit")) return;
 	else if(!commit.isMergecommit())
 	{
 		CommitInfo previousCommit=getinfor.getCommitInfor(commit, commit.getPreviousCommitSHA1(), 
 		fileName,commit.getLines().keySet());
-//		if(CommitInfoContainer.containsKey(previousCommit.getSHA1()))
-//			System.out.println(previousCommit.getSHA1()+" has been changed 1");
+		//	CommitInfo Gogo.addUnchangedCommit(CommitInfo olderCommit, String newerCommit, boolean firstCommit)
+			//addUnchangedCommit(previousCommit,);
+
+		
 		if(!CommitInfoContainer.containsKey(previousCommit.getSHA1()))
 		CommitInfoContainer.put(previousCommit.getSHA1(), previousCommit);
 		else
