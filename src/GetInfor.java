@@ -34,6 +34,17 @@ public String showCommit(String commit,String fileName)
 	else return "UnchangedCommit";
 		
 }
+public String showPreviousCommit(String commit)
+{
+	String Showcommand="git show "+commit+"^";
+	String output=new String();
+	 output=executeCommand(Showcommand);
+	 if(output.startsWith("fatal"))
+			return "NoMoreCommit";
+	 else return output;
+		
+}
+
 public String showCommitRecurisive(String commit,String fileName)
 {
 	String Showcommand="git show "+commit+" "+fileName;
@@ -59,14 +70,15 @@ public String showCommitRecurisive(String commit,String fileName)
 public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, String fileName,Set<Integer> lineNumbers) throws ParseException
 {
 	 CommitInfo info=new CommitInfo();
-	String output=showCommit(commit,fileName);
+	String output=showCommit(commit,"");
 	if(output.equals("NoMoreCommit"))
 		return null;
 	boolean unchanged=false;
-	if(output.equals("UnchangedCommit"))
+	
+	if(NextCommit!=null&&showCommit(NextCommit.getSHA1(),fileName).equals("UnchangedCommit"))
 	{
 		//get the unchanged commit informaiton;
-		 output=showCommit(commit,"");
+		// output=showCommit(commit,"");
 		 unchanged=true;
 
 	}
@@ -101,7 +113,7 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 		isMerge=false;
 		info.setMergecommit(isMerge);
 		//add the previousCommitSHA1
-		String previouscommit=showCommit(commit+"^",fileName);
+		String previouscommit=showPreviousCommit(commit);
 		if(previouscommit.equals("NoMoreCommit"))
 			info.setPreviousCommitSHA1(previouscommit);
 		else
@@ -131,6 +143,8 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			{
 				info.getLines().put(x, new Line(NextCommit.getLine(x).getContent(),x));
 			}
+			System.out.println(info);
+
 			return info;
 		}
 		//System.out.println(dateCovered);	
@@ -150,6 +164,8 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 				}
 			info.setLines(Setlines);
 		//	System.out.println(Setlines.toString());
+			System.out.println(info);
+
 			return info;
 		}
 		else

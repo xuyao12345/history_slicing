@@ -22,27 +22,28 @@ public static void main(String[] args) throws Exception {
 	else CommitSHA1="MASTER";
 	 getinfor=new GetInfor(FileDir);
 	 CommitInfoContainer=new Hashtable<String,CommitInfo>();
-	 String VaildShowCommit=getinfor.showCommitRecurisive(CommitSHA1,fileName);
-	 VaildShowCommit=getinfor.FindSHA1(VaildShowCommit);
-	CommitInfo commit=getinfor.getCommitInfor(null, VaildShowCommit, fileName, null);
+//	 String VaildShowCommit=getinfor.showCommitRecurisive(CommitSHA1,fileName);
+//	 VaildShowCommit=getinfor.FindSHA1(VaildShowCommit);
+	CommitInfo commit=getinfor.getCommitInfor(null, CommitSHA1, fileName, null);
 	//go back to very beginning 
 	getinfor.executeCommand("git checkout "+CommitSHA1);
-	CommitInfo lastCommit=addUnchangedCommit(commit,CommitSHA1,true);
+	//CommitInfo lastCommit=addUnchangedCommit(commit,CommitSHA1,true);
 	if(!commit.equals(null))
 	{
 	CommitInfoContainer.put(commit.getSHA1(), commit);
 	runRecrusive(commit);
 	}
 	else System.out.println("this file has no history");
-	if(!lastCommit.equals(null))
-	{
-		for (Integer a:commit.getLines().keySet())
-		 {
-			commit.getLine(a).setFutureLineNumber(a);
-		 }
-	PrintHistory(lastCommit);
-	}
-	else PrintHistory(commit);
+//	if(lastCommit.getSHA1()!=null)
+//	{
+//		for (Integer a:commit.getLines().keySet())
+//		 {
+//			commit.getLine(a).setFutureLineNumber(a);
+//		 }
+//	PrintHistory(lastCommit);
+//	}
+//	else 
+		PrintHistory(commit);
 	//System.out.println(CommitInfoContainer);
 }
 // add the commits that didnt changed the target file
