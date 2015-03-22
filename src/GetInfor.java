@@ -45,12 +45,44 @@ public String showPreviousCommit(String commit)
 		
 }
 
+//public String showCommitRecurisive(String commit,String fileName)
+//{
+//	String Showcommand="git show "+commit+" "+fileName;
+//	String output=new String();
+//	 output=executeCommand(Showcommand);
+//	if(!(output==null))
+//	{
+//	 if(output.startsWith("fatal"))
+//			return "NoMoreCommit";
+//	 else return output;
+//	}
+//	else return showCommitRecurisive( commit+"^",fileName);
+//		
+//}
 
  public String FindSHA1(String outputFromShow)
  {
 	 int SHA1Start=outputFromShow.indexOf("commit");
 		int SHA1Finish=outputFromShow.indexOf("\n",SHA1Start+1);
 		return outputFromShow.substring(SHA1Start+7, SHA1Finish);
+ }
+ public Date FindDate(String outputFromShow) throws ParseException
+ {
+		int dateStart=outputFromShow.indexOf("Date: ");
+		int dateFinish=outputFromShow.indexOf("+",dateStart);
+		String date=outputFromShow.substring(dateStart+8, dateFinish);
+		//Date:   Tue Mar 3 20:14:11 2015 +0000
+		DateFormat format = new SimpleDateFormat("EEE MMMM d H:m:s yyyy", Locale.ENGLISH);
+			Date dateCovered = format.parse(date);
+			return dateCovered;
+ }
+ 
+ public String findAuthor(String outputFromShow)
+ {
+	 int authorStart=outputFromShow.indexOf("Author:");
+		int authorFinish=outputFromShow.indexOf("\n",authorStart);
+		String author=outputFromShow.substring(authorStart+8, authorFinish);
+		return author;
  }
 //lineNumbers are the number of lines that we care in the next(newer) commit,we need find the correlation to the current commit. 
 public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, String fileName,Set<Integer> lineNumbers) throws ParseException
@@ -110,7 +142,9 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 		}
 
 	
+	String author=findAuthor(output);
 	info.setAuthor(author);
+		Date dateCovered = FindDate(output);
 		info.setDate(dateCovered);
 		
 		if(unchanged==true)
@@ -154,7 +188,7 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 					result.get(1),result.get(2),2);
 			for(Integer a: temp.keySet()){
 				if(lineNumbers.contains(a))
-
+				info.addline(a, temp.get(a));
 			}
 			System.out.println(info);
 			return info;
@@ -166,7 +200,6 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 	 
 }
 
-{
 // the lines not in diff report that means have not be changed including the changes of lineNumber.
 public final Vector<TreeMap<Integer,Line>>  matchUnchanged(String diffOutPut,Set<Integer> lineNumbers,CommitInfo NextCommit)
 {
@@ -177,7 +210,7 @@ public final Vector<TreeMap<Integer,Line>>  matchUnchanged(String diffOutPut,Set
 	resultSet.add(Unchanged);
 	resultSet.add(InOlderCommit);
 	resultSet.add(InNewerCommit);
-
+	Set<Integer> lines=new TreeSet<Integer>(lineNumbers);
 	DiffRange spans=FindDiffSpan(diffOutPut);
 	if(diffOutPut.indexOf("@@")==-1)
 		return resultSet ;
@@ -233,18 +266,18 @@ public final Vector<TreeMap<Integer,Line>>  matchUnchanged(String diffOutPut,Set
 			{
 			Line LineTemp=new Line(NextCommit.getLine(minusCounter+1).getContent(),minusCounter+1);
 			Unchanged.put(plusCounter+1, LineTemp);
-			for(int x=1;x<=plusCounter+1;x++)
-			lineNumbers.remove(x);
+			for(int x=1;x<=minusCounter+1;x++)
+				lines.remove(x);
 			}
 			plusCounter++;
 			minusCounter++;
 		}
 		if(c==SplitedOutPut.length-1)
 		{
-			for(Integer x: lineNumbers)
+			for(Integer x: lines)
 			{
 				Line LineTemp=new Line(NextCommit.getLine(x).getContent(),x);
-				Unchanged.put(plusCounter, LineTemp);	
+				Unchanged.put(++plusCounter, LineTemp);	
 			}
 		}
 		
