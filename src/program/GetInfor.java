@@ -186,7 +186,7 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			Set<Integer> tempLineNumber= new TreeSet<Integer>(lineNumbers);
 			tempLineNumber.removeAll(result.get(0).keySet());
 			TreeMap<Integer,Line> temp=BlockAlgorithm.BlockAlgorithm(
-					result.get(1),result.get(2),2);
+					result.get(1),result.get(2),0.9);
 			for(Integer a: temp.keySet()){
 				if(lineNumbers.contains(a))
 				info.addline(a, temp.get(a));
