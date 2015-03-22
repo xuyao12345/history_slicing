@@ -220,8 +220,10 @@ public final Vector<TreeMap<Integer,Line>>  matchUnchanged(String diffOutPut,Set
 	int plusCounter=0;
 	Iterator<Integer> minusIter=spans.minusRange.iterator();
 	Iterator<Integer> plusIter=spans.plusRange.iterator();
-	for(String a: SplitedOutPut)
+	
+	for(int c=0;c<SplitedOutPut.length;c++)
 	{
+		String a=SplitedOutPut[c];
 		if (a.matches("@@ -[0-9]*,[0-9]* \\+[0-9]*,[0-9]* @@.*"))
 		{
 			Integer plusTemp= plusIter.next();
@@ -261,10 +263,22 @@ public final Vector<TreeMap<Integer,Line>>  matchUnchanged(String diffOutPut,Set
 			{
 			Line LineTemp=new Line(NextCommit.getLine(minusCounter+1).getContent(),minusCounter+1);
 			Unchanged.put(plusCounter+1, LineTemp);
+			for(int x=1;x<=plusCounter+1;x++)
+			lineNumbers.remove(x);
 			}
 			plusCounter++;
 			minusCounter++;
 		}
+		if(c==SplitedOutPut.length-1)
+		{
+			for(Integer x: lineNumbers)
+			{
+				Line LineTemp=new Line(NextCommit.getLine(x).getContent(),x);
+				Unchanged.put(plusCounter, LineTemp);	
+			}
+		}
+		
+		
 	}
 
 	//System.out.println("InOlderCommit: "+InOlderCommit);
