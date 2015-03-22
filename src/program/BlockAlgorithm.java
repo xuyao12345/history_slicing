@@ -1,3 +1,5 @@
+package program;
+
 import java.util.TreeMap;
 
 
@@ -16,7 +18,7 @@ public class BlockAlgorithm {
 			for(int y=0;y<column;y++){
 				Line oldcommitL = (Line) oldcommit.get(oldcommitK[x]);
 				Line newcommitL = (Line) newcommit.get(newcommitK[y]);
-				Dmatrix[x][y] = EditDistance.EditDistance(oldcommitL.getContent(), newcommitL.getContent());
+				Dmatrix[x][y] = EditDistance.editDistance(oldcommitL.getContent(), newcommitL.getContent());
 				//System.out.println(Dmatrix[x][y]);
 			}
 		}
