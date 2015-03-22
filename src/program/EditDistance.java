@@ -1,6 +1,7 @@
+package program;
 
 public class EditDistance {
-	public static int EditDistance(String a, String b){
+	public static int editDistance(String a, String b){
 		int distance = 0;
 		int row = a.length()+1;
 		int column = b.length()+1;
@@ -26,8 +27,5 @@ public class EditDistance {
 		return distance;
 	}
 	
-	public static void main(String arg[]){
-		System.out.println(EditDistance("panama","banana"));
-		System.out.println(EditDistance("amapan","panama"));
-	}
+
 }
