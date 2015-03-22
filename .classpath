@@ -5,5 +5,8 @@
 	<classpathentry kind="lib" path="src/cloning-1.9.1.jar"/>
 	<classpathentry kind="lib" path="src/objenesis-2.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="org.eclipse.jgit-3.7.0.201502260915-r.jar"/>
+	<classpathentry kind="lib" path="slf4j-api-1.7.10.jar"/>
+	<classpathentry kind="lib" path="slf4j-simple-1.7.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

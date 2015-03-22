@@ -1,9 +1,13 @@
 package program;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
 
 import com.rits.cloning.Cloner;
 
@@ -174,7 +178,7 @@ public static int matchLine(TreeMap<Integer, Line> lines ,int lineNumber,String 
 }
 
 //run recursively get previous/older commit info.
-public static void runRecrusive(CommitInfo commit ) throws ParseException
+public static void runRecrusive(CommitInfo commit ) throws ParseException, MissingObjectException, IncorrectObjectTypeException, NullPointerException, IOException
 {
 	if(commit.getLines().isEmpty()||commit.getPreviousCommitSHA1().contains("NoMoreCommit")) return;
 	else if(!commit.isMergecommit())
