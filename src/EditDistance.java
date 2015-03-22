@@ -1,7 +1,7 @@
 
 public class EditDistance {
-	public static int EditDistance(String a, String b){
-		int distance = 0;
+	public static double EditDistance(String a, String b){
+		double distance = 0.0;
 		int row = a.length()+1;
 		int column = b.length()+1;
 		int[][] Dmatrix = new int[row][column];
@@ -22,8 +22,8 @@ public class EditDistance {
 				}
 			}
 		}
-		distance = Dmatrix[row-1][column-1];
-		return distance;
+		distance = ((double) Dmatrix[row-1][column-1])/a.length();
+		return (double) Math.round(distance*100)/100;
 	}
 	
 	public static void main(String arg[]){
