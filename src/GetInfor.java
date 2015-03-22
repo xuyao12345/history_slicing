@@ -45,20 +45,6 @@ public String showPreviousCommit(String commit)
 		
 }
 
-public String showCommitRecurisive(String commit,String fileName)
-{
-	String Showcommand="git show "+commit+" "+fileName;
-	String output=new String();
-	 output=executeCommand(Showcommand);
-	if(!(output==null))
-	{
-	 if(output.startsWith("fatal"))
-			return "NoMoreCommit";
-	 else return output;
-	}
-	else return showCommitRecurisive( commit+"^",fileName);
-		
-}
 
  public String FindSHA1(String outputFromShow)
  {
@@ -122,20 +108,10 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 		info.setPreviousCommitSHA1(preSHA1);
 		}
 		}
-	
-	
-	int authorStart=output.indexOf("Author:");
-	int authorFinish=output.indexOf("\n",authorStart);
-	String author=output.substring(authorStart+8, authorFinish);
-	info.setAuthor(author);
-	int dateStart=output.indexOf("Date: ");
-	int dateFinish=output.indexOf("+",authorStart);
-	String date=output.substring(dateStart+8, dateFinish);
-	//Date:   Tue Mar 3 20:14:11 2015 +0000
-	DateFormat format = new SimpleDateFormat("EEE MMMM d H:m:s yyyy", Locale.ENGLISH);
-		Date dateCovered = format.parse(date);
-		info.setDate(dateCovered);
 
+	
+	info.setAuthor(author);
+		info.setDate(dateCovered);
 		
 		if(unchanged==true)
 		{
@@ -165,7 +141,6 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			info.setLines(Setlines);
 		//	System.out.println(Setlines.toString());
 			System.out.println(info);
-
 			return info;
 		}
 		else
@@ -180,7 +155,6 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			for(Integer a: temp.keySet()){
 				if(lineNumbers.contains(a))
 
-				info.addline(a, temp.get(a));;
 			}
 			System.out.println(info);
 			return info;
@@ -192,11 +166,7 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 	 
 }
 
-public final TreeMap<Integer,Line> matchChanged(TreeMap<Integer,Line> InOlderCommit,TreeMap<Integer,Line> InNewerCommit)
 {
-	return new TreeMap<Integer,Line>();
-	
-}
 // the lines not in diff report that means have not be changed including the changes of lineNumber.
 public final Vector<TreeMap<Integer,Line>>  matchUnchanged(String diffOutPut,Set<Integer> lineNumbers,CommitInfo NextCommit)
 {
