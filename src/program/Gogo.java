@@ -13,13 +13,15 @@ public class Gogo {
 	static GetInfor getinfor;
 	static Hashtable<String,CommitInfo> CommitInfoContainer;
 public static void main(String[] args) throws Exception {
-	if(args.length<2)
+	if(args.length<1)
 		throw new Exception("arguement missing");
-	 fileName=args[0];
-	String FileDir=args[1];
+	int namestart=args[0].lastIndexOf("/");
+	 fileName=args[0].substring(namestart+1);
+	String FileDir=args[0].substring(0, namestart);
+	
 	String CommitSHA1=new String();
 	if(args.length==3)
-	 CommitSHA1=args[2];
+	 CommitSHA1=args[1];
 	else CommitSHA1="MASTER";
 	 getinfor=new GetInfor(FileDir);
 	 CommitInfoContainer=new Hashtable<String,CommitInfo>();
