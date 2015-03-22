@@ -1,3 +1,4 @@
+package program;
 public class Line
 {
 	private String content;

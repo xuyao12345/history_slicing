@@ -1,3 +1,4 @@
+package program;
 import java.util.*;
 public class DeletLargeBlock {
 	public static TreeMap<Integer,Line> deletelargeBlock(TreeMap file)
