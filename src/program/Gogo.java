@@ -20,6 +20,10 @@ public static void main(String[] args) throws Exception {
 	if(args.length<1)
 		throw new Exception("arguement missing");
 	int namestart=args[0].lastIndexOf("/");
+	if(namestart==-1)
+	{
+		namestart=args[0].lastIndexOf("\\");	
+	}
 	 fileName=args[0].substring(namestart+1);
 	String FileDir=args[0].substring(0, namestart);
 	
