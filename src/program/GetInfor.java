@@ -191,9 +191,22 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			tempLineNumber.removeAll(result.get(0).keySet());
 			int oldFilesize=GItApi.getSize(path,fileName, commit);
 			int newFilesize=GItApi.getSize(path,fileName, NextCommit.getSHA1());
+			Set<Block> block = FindMatchedBlock.FindMatchedBlock(result.get(1),result.get(2));
+			Set<Block> blockafterdeletion = BlockDeletion.BlockDeletion(block,1,oldFilesize,newFilesize);
+			Iterator<Block> iterator = blockafterdeletion.iterator();
+			TreeMap<Integer,Line> oldcommit = new TreeMap<Integer,Line>();
+			TreeMap<Integer,Line> newcommit = new TreeMap<Integer,Line>();
+			while(iterator.hasNext()){
+				Block tempB = iterator.next();
+				oldcommit.putAll(tempB.oldC);
+				newcommit.putAll(tempB.newC);
+			}
+			
+			
+			
 			System.out.println("old:" +oldFilesize+"new"+ newFilesize);
 			TreeMap<Integer,Line> temp=BlockAlgorithm.BlockAlgorithm(
-					result.get(1),result.get(2),0.9);
+					oldcommit,newcommit,1);
 			for(Integer a: temp.keySet()){
 				if(lineNumbers.contains(a))
 				info.addline(a, temp.get(a));

@@ -2,11 +2,14 @@ package program;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.junit.Test;
 
 public class testcase {
@@ -119,7 +122,7 @@ public class testcase {
 		assertTrue(date.equals("Sun Mar 22 11:32:59 GMT 2015"));
 	}
 	@Test
-	public void TestgetCommitInfor() throws ParseException
+	public void TestgetCommitInfor() throws ParseException, MissingObjectException, IncorrectObjectTypeException, NullPointerException, IOException
 	{
 		GetInfor a=new GetInfor("/Users/peer_free/Desktop/TestCase3");
 		String result = a.getCommitInfor(null,"9926800", "test.txt",null).toString();
