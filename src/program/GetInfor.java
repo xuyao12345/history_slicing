@@ -1,6 +1,7 @@
 package program;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -12,6 +13,9 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
+
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
 
 public class GetInfor {
 public String path;
@@ -86,7 +90,7 @@ public String showPreviousCommit(String commit)
 		return author;
  }
 //lineNumbers are the number of lines that we care in the next(newer) commit,we need find the correlation to the current commit. 
-public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, String fileName,Set<Integer> lineNumbers) throws ParseException
+public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, String fileName,Set<Integer> lineNumbers) throws ParseException, MissingObjectException, IncorrectObjectTypeException, NullPointerException, IOException
 {
 	 CommitInfo info=new CommitInfo();
 	String output=showCommit(commit,"");
@@ -185,8 +189,24 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			info.addLines(result.get(0));	
 			Set<Integer> tempLineNumber= new TreeSet<Integer>(lineNumbers);
 			tempLineNumber.removeAll(result.get(0).keySet());
+			int oldFilesize=GItApi.getSize(path,fileName, commit);
+			int newFilesize=GItApi.getSize(path,fileName, NextCommit.getSHA1());
+			Set<Block> block = FindMatchedBlock.FindMatchedBlock(result.get(1),result.get(2));
+			Set<Block> blockafterdeletion = BlockDeletion.BlockDeletion(block,1,oldFilesize,newFilesize);
+			Iterator<Block> iterator = blockafterdeletion.iterator();
+			TreeMap<Integer,Line> oldcommit = new TreeMap<Integer,Line>();
+			TreeMap<Integer,Line> newcommit = new TreeMap<Integer,Line>();
+			while(iterator.hasNext()){
+				Block tempB = iterator.next();
+				oldcommit.putAll(tempB.oldC);
+				newcommit.putAll(tempB.newC);
+			}
+			
+			
+			
+			System.out.println("old:" +oldFilesize+"new"+ newFilesize);
 			TreeMap<Integer,Line> temp=BlockAlgorithm.BlockAlgorithm(
-					result.get(1),result.get(2),0.9);
+					oldcommit,newcommit,1);
 			for(Integer a: temp.keySet()){
 				if(lineNumbers.contains(a))
 				info.addline(a, temp.get(a));
