@@ -110,14 +110,13 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 	info.setSHA1(SHA1);
 	boolean isMerge;
 	
-	if (output.contains("Merge branch"))	{
+	if (output.substring(0,200).contains("Merge branch"))	{
 		isMerge=true;
 		int previousCommitStart=output.indexOf("Merge:");
 		int previousCommitFinish=output.indexOf(" ",previousCommitStart+7);
 		String previousCommit =output.substring(previousCommitStart+7, previousCommitFinish);
 	
-		String Showcommand="git show "+previousCommit+" "+fileName;
-		previousCommit=executeCommand(Showcommand);
+		previousCommit=showCommit(previousCommit,"");
 		previousCommit=FindSHA1(previousCommit);
 		info.setPreviousCommitSHA1(previousCommit);
 		
@@ -126,9 +125,9 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 		info.setMergecommit(isMerge);
 		int previousCommitMergedFinish=output.indexOf("\n",previousCommitFinish+1);
 		String priviouseCommitMerged=output.substring(previousCommitFinish+1, previousCommitMergedFinish);
-		Showcommand="git show "+priviouseCommitMerged+" "+fileName;
-		 priviouseCommitMerged=executeCommand(Showcommand);
-		 priviouseCommitMerged=FindSHA1(priviouseCommitMerged);
+
+		priviouseCommitMerged=showCommit(priviouseCommitMerged,"");
+		priviouseCommitMerged=FindSHA1(priviouseCommitMerged);
 		info.setPreviousCommitMergedSHA1(priviouseCommitMerged);
 		//System.out.println("priviouseCommitMerged: "+priviouseCommitMerged);
 		}
