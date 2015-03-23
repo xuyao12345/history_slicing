@@ -14,7 +14,7 @@ public class FindMatchedBlock {
 		Set<Block> result = new HashSet<Block>();
 		
 		while(true){
-			if(oldtag>=oldcommitK.length && newtag>=newcommitK.length){
+			if(countx>=oldcommitK.length && county>=newcommitK.length){
 				break;
 			}
 			TreeMap<Integer,Line> oldresult = new TreeMap<Integer,Line>();
@@ -59,8 +59,8 @@ public class FindMatchedBlock {
 		oldC.put(4,new Line("lianjiayi",3));
 		
 		newC.put(1,new Line("ab",1));
-		newC.put(3,new Line("abcde",2));
-		newC.put(4,new Line("weianqi",3));
+		newC.put(2,new Line("abcde",2));
+		newC.put(3,new Line("weianqi",3));
 		newC.put(5,new Line("abc",4));
 		
 		

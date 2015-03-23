@@ -73,17 +73,19 @@ public class BlockAlgorithm {
 	public static void main(String args[]){
 		TreeMap<Integer,Line> oldC = new TreeMap<Integer,Line>();
 		TreeMap<Integer,Line> newC = new TreeMap<Integer,Line>();
-		oldC.put(1,new Line("abcdefgh",1));
-		oldC.put(2,new Line("abc",2));
-		oldC.put(3,new Line("lianjiayi",3));
+		oldC.put(1,new Line("opp",1));
+		//oldC.put(1,new Line("abcdefgh",1));
+		//oldC.put(2,new Line("abc",2));
+		//oldC.put(3,new Line("lianjiayi",3));
 		
-		newC.put(1,new Line("ab",1));
-		newC.put(2,new Line("abcde",2));
-		newC.put(3,new Line("weianqi",3));
-		newC.put(4,new Line("abc",4));
+		newC.put(2,new Line("opq",2));
+		//newC.put(1,new Line("ab",1));
+		//newC.put(2,new Line("abcde",2));
+		//newC.put(3,new Line("weianqi",3));
+		//newC.put(4,new Line("abc",4));
 		
 		
-		TreeMap<Integer,Line> result = BlockAlgorithm(oldC,newC,0.497);
+		TreeMap<Integer,Line> result = BlockAlgorithm(oldC,newC,1);
 		System.out.println(result);
 	}
 }
