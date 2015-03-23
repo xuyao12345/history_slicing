@@ -2,14 +2,11 @@ package program;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.MissingObjectException;
 import org.junit.Test;
 
 public class testcase {
@@ -122,14 +119,46 @@ public class testcase {
 		assertTrue(date.equals("Sun Mar 22 11:32:59 GMT 2015"));
 	}
 	@Test
-	public void TestgetCommitInfor() throws ParseException, MissingObjectException, IncorrectObjectTypeException, NullPointerException, IOException
+	public void TestgetCommitInfor() throws ParseException
 	{
 		GetInfor a=new GetInfor("/Users/peer_free/Desktop/TestCase3");
 		String result = a.getCommitInfor(null,"9926800", "test.txt",null).toString();
+		//System.out.println(result);
+		
+		assertTrue(result.contains("SHA1=9926800baec7071c9fe4f5930262c95eacc79764"));
+		
+		CommitInfo commit = a.getCommitInfor(null,"9926800", "test.txt",null);
+		String result2 = a.getCommitInfor(commit,"9926800", "test.txt",null).toString();
+		//System.out.println(result2);
+		assertTrue(result2.contains("SHA1=9926800baec7071c9fe4f5930262c95eacc79764"));
+	}
+	@Test
+	public void Testmatchunchanged() throws ParseException
+	{
+		GetInfor a = new GetInfor("/Users/peer_free/Desktop/TestCase3");
+		String result = a.getCommitInfor(null,"9926800", "test.txt",null).toString();	
+	}
+	@Test
+	public void TestFindNumberInRangeOffSet()
+	{
+		Set<Integer> number = new TreeSet<Integer>();
+		number.add(1);
+		number.add(2);
+		Set<Integer> result = new TreeSet<Integer>();
+		result.add(1);
+		GetInfor a = new GetInfor("/Users/peer_free/Desktop/TestCase3");
+		assertFalse(a.findNumberInRangeOffSet(number, 0, 0).equals(null));
+		assertTrue(a.findNumberInRangeOffSet(number, 2, 0).equals(result));
+	}
+	@Test
+	public void TestFindDiffSpan() throws ParseException
+	{
+		DiffRange diff = new DiffRange();
+		diff.minusRange.add(1);
+		diff.plusRange.add(2);
+		GetInfor a = new GetInfor("/Users/peer_free/Desktop/TestCase3");
+		String result = a.getCommitInfor(null,"9926800", "test.txt",null).toString();
 		System.out.println(result);
-		System.out.println("{2=Line [content=abc, FutureNumber=3]\n}");
-		//String result = a.getCommitInfor(null,"9926800", "test.txt",null).toString();
-
-		assertTrue(result.contains("2=Line[content=abc, FutureNumber=3]"));
+		
 	}
 }
