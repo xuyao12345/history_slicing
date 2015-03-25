@@ -16,22 +16,90 @@ public class Gogo {
 	static String fileName;
 	static GetInfor getinfor;
 	static Hashtable<String,CommitInfo> CommitInfoContainer;
+	static boolean collapes=false;
+	static boolean FullcommitInfo=false;
+	static char pathInterver=' ';
 public static void main(String[] args) throws Exception {
-	if(args.length<1)
-		throw new Exception("arguement missing");
-	int namestart=args[0].lastIndexOf("/");
-	if(namestart==-1)
-	{
-		namestart=args[0].lastIndexOf("\\");	
-	}
-	 fileName=args[0].substring(namestart+1);
-	String FileDir=args[0].substring(0, namestart);
-	
+	String fileDir=new String();
+	double bt=1;
+	double lt=0.2;
 	String CommitSHA1=new String();
-	if(args.length==3)
-	 CommitSHA1=args[1];
-	else CommitSHA1="MASTER";
-	 getinfor=new GetInfor(FileDir);
+
+	for(String arg:args)
+	{
+		if(arg.startsWith("-filePath="))
+		{
+			String filePath=arg.substring(10);
+			int namestart=filePath.lastIndexOf("/");
+			if(namestart==-1)
+			{
+				namestart=filePath.lastIndexOf("\\");
+				pathInterver='\\';
+			}
+			else pathInterver='/';
+			 fileName=filePath.substring(namestart+1);
+			 fileDir=filePath.substring(0, namestart);
+		}
+		if(arg.startsWith("-BThreshold="))
+		{
+			String temp=arg.substring(11);
+			 bt=Double.parseDouble(temp);
+			 if(bt<0)
+			 {
+				 System.out.println("invaild Block Threshold Value");
+				 System.exit(-1);
+			 }
+		}
+		if(arg.startsWith("-LThreshold="))
+		{
+			String temp=arg.substring(11);
+			 lt=Double.parseDouble(temp);
+			 if(bt<0)
+			 {
+				 System.out.println("invaild line Threshold Value");
+				 System.exit(-1);
+
+			 }
+		}
+		if(arg.startsWith("-commit="))
+		{
+			CommitSHA1=arg.substring(8);
+		}
+		if(arg.startsWith("-fullDetails="))
+		{
+			String temp=arg.substring(13);
+			if(temp.charAt(0)=='y'||temp.charAt(0)=='t')
+				FullcommitInfo=true;
+			else if(temp.charAt(0)=='f'||temp.charAt(0)=='n')
+				FullcommitInfo=false;
+			else {
+				System.out.println("invaild details indicator");
+			}
+
+					
+		}
+		if(arg.startsWith("-collapse="))
+		{
+			String temp=arg.substring(10);
+			if(temp.charAt(0)=='y'||temp.charAt(0)=='t')
+				collapes=true;
+			else if(temp.charAt(0)=='f'||temp.charAt(0)=='n')
+				collapes=false;
+			else {
+				System.out.println("invaild copllapes indicator");
+			}
+		}
+		
+		
+		
+	}
+	if(CommitSHA1==null||CommitSHA1.isEmpty())
+	{
+		CommitSHA1="Master";
+	}
+	
+
+	 getinfor=new GetInfor(fileDir,bt,lt,pathInterver);
 	 CommitInfoContainer=new Hashtable<String,CommitInfo>();
 //	 String VaildShowCommit=getinfor.showCommitRecurisive(CommitSHA1,fileName);
 //	 VaildShowCommit=getinfor.FindSHA1(VaildShowCommit);
@@ -113,10 +181,15 @@ public static void PrintHistory(CommitInfo lastCommit)
 	for (Integer a:lastCommit.getLines().keySet())
 	{
 		System.out.println(a+"st line: ");
+		if(FullcommitInfo==false)
 		System.out.printf("commit:%s ,line number:%d ,content:%s \n",lastCommit.getSHA1().substring(0, 6),
 				a,lastCommit.getLines().get(a).getContent());
+		else 
+			System.out.printf("commit:%s, line number:%d, author:%s, date:%s content:%s \n",lastCommit.getSHA1().substring(0, 6),
+					a,lastCommit.getAuthor(),lastCommit.getDate().toString(),lastCommit.getLines().get(a).getContent());
 		Integer lineNumber =a;
 		CommitInfo tempCommit=lastCommit.deepClone(lastCommit);
+		
 		//find the histroy of line 'a'
 		outer: while(true)
 		{
@@ -129,7 +202,7 @@ public static void PrintHistory(CommitInfo lastCommit)
 		
 		else{
 			TreeMap<Integer, Line> lines=CommitInfoContainer.get(tempCommit.getPreviousCommitSHA1()).getLines();
-			int temp=matchLine(lines,lineNumber,tempCommit.getPreviousCommitSHA1().substring(0, 6));
+			int temp=matchLine(lines,lineNumber,tempCommit.getPreviousCommitSHA1(),tempCommit);
 		//if we found it in the previous commit
 			if(temp!=0)
 			{
@@ -140,7 +213,7 @@ public static void PrintHistory(CommitInfo lastCommit)
 			else if(tempCommit.isMergecommit())
 				{
 					TreeMap<Integer, Line> linesMerge=CommitInfoContainer.get(tempCommit.getPreviousCommitMergedSHA1()).getLines();
-					 temp=matchLine(linesMerge,lineNumber,tempCommit.getPreviousCommitMergedSHA1().substring(0, 6));
+					 temp=matchLine(linesMerge,lineNumber,tempCommit.getPreviousCommitMergedSHA1(),tempCommit);
 						if(temp!=0)
 						{
 							lineNumber=temp;
@@ -148,7 +221,7 @@ public static void PrintHistory(CommitInfo lastCommit)
 						}
 						
 				}
-			//other wise find process terminate.
+			//otherwise find process terminate.
 			else{	
 				System.out.println();
 				break outer;
@@ -159,20 +232,35 @@ public static void PrintHistory(CommitInfo lastCommit)
 	}
 }
 //match line from previous commit to current commit
-public static int matchLine(TreeMap<Integer, Line> lines ,int lineNumber,String commit)
+public static int matchLine(TreeMap<Integer, Line> lines ,int lineNumber,String commit,CommitInfo futureCommit)
 {
 	if(lines.isEmpty())
 	{
 		System.out.println();
 		return 0;
 	}
+	CommitInfo temp=CommitInfoContainer.get(commit);
+
 	 for (Integer b:lines.keySet())
 	{
+		 
 		
 		if(lines.get(b).getFutureLineNumber()==lineNumber)
 		{
-		System.out.printf("commit:%s ,line number:%d ,content:%s \n",commit,
+			//dont print the lines has then same conent when collapes indicated.
+			if(collapes==true&&futureCommit.getLine(lineNumber).getContent().equals(lines.get(b).getContent()));
+		
+			else
+			{
+			if(FullcommitInfo==false)
+		System.out.printf("commit:%s ,line number:%d ,content:%s \n",commit.substring(0, 6),
 				b,lines.get(b).getContent());
+			else
+			{
+				System.out.printf("commit:%s, line number:%d, author:%10s, date:%s content:%s \n",commit.substring(0, 6),b,temp.getAuthor(),
+						temp.getDate(),lines.get(b).getContent());
+			}
+			}
 
 		return b;
 		}

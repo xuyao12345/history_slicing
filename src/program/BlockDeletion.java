@@ -34,5 +34,9 @@ public class BlockDeletion {
 		
 		Set<Block> result = FindMatchedBlock.FindMatchedBlock(oldC,newC);
 		System.out.println(BlockDeletion(result,0.70,3,4));
+		String a="asdf";
+		String b=String.format("%10s",a);
+		System.out.printf(b);
+
 	}
 }

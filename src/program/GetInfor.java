@@ -19,10 +19,15 @@ import org.eclipse.jgit.errors.MissingObjectException;
 
 public class GetInfor {
 public String path;
-
-GetInfor(String path)
+public double BlockThreshold;
+public double LineThreshold;
+public char pathInterval;
+GetInfor(String path,double BlockThreshold,double LineThreshold,char pathInterval)
 {
 	this.path=path;
+	this.BlockThreshold=BlockThreshold;
+	this.LineThreshold=LineThreshold;
+	this.pathInterval=pathInterval;
 }
 
 public String showCommit(String commit,String fileName)
@@ -188,10 +193,10 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			info.addLines(result.get(0));	
 			Set<Integer> tempLineNumber= new TreeSet<Integer>(lineNumbers);
 			tempLineNumber.removeAll(result.get(0).keySet());
-			int oldFilesize=GItApi.getSize(path,fileName, commit);
-			int newFilesize=GItApi.getSize(path,fileName, NextCommit.getSHA1());
+			int oldFilesize=GItApi.getSize(path,fileName, commit,pathInterval);
+			int newFilesize=GItApi.getSize(path,fileName, NextCommit.getSHA1(),pathInterval);
 			Set<Block> block = FindMatchedBlock.FindMatchedBlock(result.get(1),result.get(2));
-			Set<Block> blockafterdeletion = BlockDeletion.BlockDeletion(block,1,oldFilesize,newFilesize);
+			Set<Block> blockafterdeletion = BlockDeletion.BlockDeletion(block,BlockThreshold,oldFilesize,newFilesize);
 			Iterator<Block> iterator = blockafterdeletion.iterator();
 			TreeMap<Integer,Line> oldcommit = new TreeMap<Integer,Line>();
 			TreeMap<Integer,Line> newcommit = new TreeMap<Integer,Line>();
@@ -205,7 +210,7 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			
 			System.out.println("old:" +oldFilesize+"new"+ newFilesize);
 			TreeMap<Integer,Line> temp=BlockAlgorithm.BlockAlgorithm(
-					oldcommit,newcommit,1);
+					oldcommit,newcommit,LineThreshold);
 			for(Integer a: temp.keySet()){
 				if(lineNumbers.contains(a))
 				info.addline(a, temp.get(a));
