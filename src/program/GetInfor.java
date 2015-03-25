@@ -19,14 +19,16 @@ import org.eclipse.jgit.errors.MissingObjectException;
 
 public class GetInfor {
 public String path;
-public double BlockThreshold;
+public double alfa;
+public int beta;
 public double LineThreshold;
 public char pathInterval;
-GetInfor(String path,double BlockThreshold,double LineThreshold,char pathInterval)
+GetInfor(String path,double alfa,int beta,double LineThreshold,char pathInterval)
 {
 	this.path=path;
-	this.BlockThreshold=BlockThreshold;
+	this.alfa=alfa;
 	this.LineThreshold=LineThreshold;
+	this.beta=beta;
 	this.pathInterval=pathInterval;
 }
 
@@ -196,7 +198,7 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			int oldFilesize=GItApi.getSize(path,fileName, commit,pathInterval);
 			int newFilesize=GItApi.getSize(path,fileName, NextCommit.getSHA1(),pathInterval);
 			Set<Block> block = FindMatchedBlock.FindMatchedBlock(result.get(1),result.get(2));
-			Set<Block> blockafterdeletion = BlockDeletion.BlockDeletion(block,BlockThreshold,oldFilesize,newFilesize);
+			Set<Block> blockafterdeletion = BlockDeletion.BlockDeletion(block,alfa,beta,oldFilesize,newFilesize);
 			Iterator<Block> iterator = blockafterdeletion.iterator();
 			TreeMap<Integer,Line> oldcommit = new TreeMap<Integer,Line>();
 			TreeMap<Integer,Line> newcommit = new TreeMap<Integer,Line>();
