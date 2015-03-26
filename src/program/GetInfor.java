@@ -19,10 +19,19 @@ import org.eclipse.jgit.errors.MissingObjectException;
 
 public class GetInfor {
 public String path;
-
-GetInfor(String path)
+public double alfa;
+public int beta;
+public double LineThreshold;
+public char pathInterval;
+private GItApi gitApi;
+GetInfor(String path,double alfa,int beta,double LineThreshold,char pathInterval,GItApi gitApi)
 {
 	this.path=path;
+	this.alfa=alfa;
+	this.LineThreshold=LineThreshold;
+	this.beta=beta;
+	this.pathInterval=pathInterval;
+	this.gitApi=gitApi;
 }
 
 public String showCommit(String commit,String fileName)
@@ -110,14 +119,13 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 	info.setSHA1(SHA1);
 	boolean isMerge;
 	
-	if (output.contains("Merge branch"))	{
+	if (output.substring(0,200).contains("Merge branch"))	{
 		isMerge=true;
 		int previousCommitStart=output.indexOf("Merge:");
 		int previousCommitFinish=output.indexOf(" ",previousCommitStart+7);
 		String previousCommit =output.substring(previousCommitStart+7, previousCommitFinish);
 	
-		String Showcommand="git show "+previousCommit+" "+fileName;
-		previousCommit=executeCommand(Showcommand);
+		previousCommit=showCommit(previousCommit,"");
 		previousCommit=FindSHA1(previousCommit);
 		info.setPreviousCommitSHA1(previousCommit);
 		
@@ -126,9 +134,9 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 		info.setMergecommit(isMerge);
 		int previousCommitMergedFinish=output.indexOf("\n",previousCommitFinish+1);
 		String priviouseCommitMerged=output.substring(previousCommitFinish+1, previousCommitMergedFinish);
-		Showcommand="git show "+priviouseCommitMerged+" "+fileName;
-		 priviouseCommitMerged=executeCommand(Showcommand);
-		 priviouseCommitMerged=FindSHA1(priviouseCommitMerged);
+
+		priviouseCommitMerged=showCommit(priviouseCommitMerged,"");
+		priviouseCommitMerged=FindSHA1(priviouseCommitMerged);
 		info.setPreviousCommitMergedSHA1(priviouseCommitMerged);
 		//System.out.println("priviouseCommitMerged: "+priviouseCommitMerged);
 		}
@@ -158,7 +166,7 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			{
 				info.getLines().put(x, new Line(NextCommit.getLine(x).getContent(),x));
 			}
-			System.out.println(info);
+			//System.out.println(info);
 
 			return info;
 		}
@@ -179,20 +187,20 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 				}
 			info.setLines(Setlines);
 		//	System.out.println(Setlines.toString());
-			System.out.println(info);
+		//	System.out.println(info);
 			return info;
 		}
 		else
 		{
-			String diffoutput=executeCommand("git diff "+NextCommit.getSHA1()+" "+commit);
+			String diffoutput=executeCommand("git diff "+NextCommit.getSHA1()+" "+commit+" "+fileName);
 			Vector<TreeMap<Integer,Line>> result=matchUnchanged(diffoutput,lineNumbers,NextCommit);
 			info.addLines(result.get(0));	
 			Set<Integer> tempLineNumber= new TreeSet<Integer>(lineNumbers);
 			tempLineNumber.removeAll(result.get(0).keySet());
-			int oldFilesize=GItApi.getSize(path,fileName, commit);
-			int newFilesize=GItApi.getSize(path,fileName, NextCommit.getSHA1());
+			int oldFilesize=gitApi.getSize( commit);
+			int newFilesize=gitApi.getSize( NextCommit.getSHA1());
 			Set<Block> block = FindMatchedBlock.FindMatchedBlock(result.get(1),result.get(2));
-			Set<Block> blockafterdeletion = BlockDeletion.BlockDeletion(block,1,oldFilesize,newFilesize);
+			Set<Block> blockafterdeletion = BlockDeletion.BlockDeletion(block,alfa,beta,oldFilesize,newFilesize);
 			Iterator<Block> iterator = blockafterdeletion.iterator();
 			TreeMap<Integer,Line> oldcommit = new TreeMap<Integer,Line>();
 			TreeMap<Integer,Line> newcommit = new TreeMap<Integer,Line>();
@@ -204,14 +212,14 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			
 			
 			
-			System.out.println("old:" +oldFilesize+"new"+ newFilesize);
+			//System.out.println("old:" +oldFilesize+"new"+ newFilesize);
 			TreeMap<Integer,Line> temp=BlockAlgorithm.BlockAlgorithm(
-					oldcommit,newcommit,1);
+					oldcommit,newcommit,LineThreshold);
 			for(Integer a: temp.keySet()){
 				if(lineNumbers.contains(a))
 				info.addline(a, temp.get(a));
 			}
-			System.out.println(info);
+		//	System.out.println(info);
 			return info;
 			
 		}

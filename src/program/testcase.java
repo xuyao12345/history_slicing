@@ -20,7 +20,7 @@ public class testcase {
 		EditDistance edit = new EditDistance();
 		String string1 = "abc";
 		String string2 = "abcd";
-		assertEquals(edit.editDistance(string1,string2),1);
+		assertEquals("asd",edit.editDistance(string1,string2),0.333,0.01);
 	}
 	@Test
 	public void TestDeletLargeBlock()
@@ -57,7 +57,7 @@ public class testcase {
 		newC.put(4,new Line("abc",4));
 		
 		testcase.put(2, new Line("abc",3));
-		TreeMap<Integer,Line> result = block.BlockAlgorithm(oldC,newC,0.497);
+		TreeMap<Integer,Line> result = block.BlockAlgorithm(oldC,newC,0.1);
 		String a = result.toString();
 		String b = testcase.toString();
 		System.out.println(a);
@@ -70,7 +70,7 @@ public class testcase {
 	}
 	@Test
 	public void TestShowCommit(){
-		GetInfor a=new GetInfor("/Users/peer_free/Desktop/TestCase3");
+		GetInfor a=new GetInfor("/Users/sea/Downloads/zhangtang/TestCase3");
 		String result=a.showCommit("992680", "test.txt");
 		String result1=a.showCommit("1", "test.txt");
 		String result2=a.showCommit("07ea43", "test.txt");
@@ -83,7 +83,7 @@ public class testcase {
 	@Test
 	public void TestShowPreviousCommit()
 	{
-		GetInfor a=new GetInfor("/Users/peer_free/Desktop/TestCase3");
+		GetInfor a=new GetInfor("/Users/sea/Downloads/zhangtang/TestCase3");
 		String result = a.showPreviousCommit("1");
 		String result1 = a.showPreviousCommit("e0fda9");
 		assertTrue(result.equals("NoMoreCommit"));
@@ -94,7 +94,7 @@ public class testcase {
 	@Test
 	public void TestFindSHA1()
 	{
-		GetInfor a=new GetInfor("/Users/peer_free/Desktop/TestCase3");
+		GetInfor a=new GetInfor("/Users/sea/Downloads/zhangtang/TestCase3");
 		String result=a.showCommit("992680", "test.txt");
 	  
 		String SHA = a.FindSHA1(result);
@@ -104,7 +104,7 @@ public class testcase {
 	@Test
 	public void TestFindAuthor()
 	{
-		GetInfor a=new GetInfor("/Users/peer_free/Desktop/TestCase3");
+		GetInfor a=new GetInfor("/Users/sea/Downloads/zhangtang/TestCase3");
 		String result=a.showCommit("992680", "test.txt");
 	  
 		String author = a.findAuthor(result);
@@ -114,7 +114,7 @@ public class testcase {
 	@Test
 	public void TestFindDate() throws ParseException
 	{
-		GetInfor a=new GetInfor("/Users/peer_free/Desktop/TestCase3");
+		GetInfor a=new GetInfor("/Users/sea/Downloads/zhangtang/TestCase3");
 		String result=a.showCommit("992680", "test.txt");
 	  
 		String date = a.FindDate(result).toString();
@@ -124,7 +124,7 @@ public class testcase {
 	@Test
 	public void TestgetCommitInfor() throws ParseException, MissingObjectException, IncorrectObjectTypeException, NullPointerException, IOException
 	{
-		GetInfor a=new GetInfor("/Users/peer_free/Desktop/TestCase3");
+		GetInfor a=new GetInfor("/Users/sea/Downloads/zhangtang/TestCase3");
 		String result = a.getCommitInfor(null,"9926800", "test.txt",null).toString();
 		//System.out.println(result);
 		
@@ -138,7 +138,7 @@ public class testcase {
 	@Test
 	public void Testmatchunchanged() throws ParseException, MissingObjectException, IncorrectObjectTypeException, NullPointerException, IOException
 	{
-		GetInfor a = new GetInfor("/Users/peer_free/Desktop/TestCase3");
+		GetInfor a = new GetInfor("/Users/sea/Downloads/zhangtang/TestCase3");
 		String result = a.getCommitInfor(null,"9926800", "test.txt",null).toString();	
 	}
 	@Test
@@ -149,7 +149,7 @@ public class testcase {
 		number.add(2);
 		Set<Integer> result = new TreeSet<Integer>();
 		result.add(1);
-		GetInfor a = new GetInfor("/Users/peer_free/Desktop/TestCase3");
+		GetInfor a = new GetInfor("/Users/sea/Downloads/zhangtang/TestCase3");
 		assertFalse(a.findNumberInRangeOffSet(number, 0, 0).equals(null));
 		assertTrue(a.findNumberInRangeOffSet(number, 2, 0).equals(result));
 	}
@@ -159,7 +159,7 @@ public class testcase {
 		DiffRange diff = new DiffRange();
 		diff.minusRange.add(1);
 		diff.plusRange.add(2);
-		GetInfor a = new GetInfor("/Users/peer_free/Desktop/TestCase3");
+		GetInfor a = new GetInfor("/Users/sea/Downloads/zhangtang/TestCase3");
 		String result = a.getCommitInfor(null,"9926800", "test.txt",null).toString();
 		System.out.println(result);
 		
