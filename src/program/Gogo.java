@@ -106,6 +106,13 @@ public static void main(String[] args) throws Exception {
 		
 		
 	}
+	
+	if(fileName==null||fileDir==null)
+	{
+		System.out.println("invalid parameter");
+		System.exit(-1);
+	}
+	
 	if(CommitSHA1==null||CommitSHA1.isEmpty())
 	{
 		CommitSHA1="Master";
@@ -305,6 +312,7 @@ public static int matchLine(TreeMap<Integer, Line> lines ,int lineNumber,String 
 			if(FullcommitInfo==false)
 		System.out.printf("commit:%s ,line number:%d ,content:%s \n",commit.substring(0, 6),
 				b,lines.get(b).getContent());
+			
 			else
 			{
 				System.out.printf("commit:%s, line number:%d, author:%10s, date:%s content:%s \n",commit.substring(0, 6),b,temp.getAuthor(),
@@ -332,6 +340,7 @@ public static int matchLine(TreeMap<Integer, Line> lines ,int lineNumber,String 
 				{
 			System.out.printf("commit:%s ,line number:%d ,content:%s \n",futureCommit.getSHA1().substring(0, 6),
 					lineNumber,futureCommit.getLine(lineNumber).getContent());
+			
 				}
 				else
 				{
