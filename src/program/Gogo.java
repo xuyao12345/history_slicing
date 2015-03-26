@@ -19,12 +19,12 @@ public class Gogo {
 	static boolean collapes=false;
 	static boolean FullcommitInfo=false;
 	static char pathInterver=' ';
+	static String CommitSHA1=new String();
 public static void main(String[] args) throws Exception {
 	String fileDir=new String();
 	double alfa=0.2;
 	int beta=5;
 	double lt=0.5;
-	String CommitSHA1=new String();
 
 	for(String arg:args)
 	{
@@ -111,14 +111,16 @@ public static void main(String[] args) throws Exception {
 		CommitSHA1="Master";
 	}
 	
-
-	 getinfor=new GetInfor(fileDir,alfa,beta,lt,pathInterver);
+	GItApi api=new GItApi(fileDir,fileName,pathInterver);
+	 getinfor=new GetInfor(fileDir,alfa,beta,lt,pathInterver,api);
 	 CommitInfoContainer=new Hashtable<String,CommitInfo>();
 //	 String VaildShowCommit=getinfor.showCommitRecurisive(CommitSHA1,fileName);
 //	 VaildShowCommit=getinfor.FindSHA1(VaildShowCommit);
 	CommitInfo commit=getinfor.getCommitInfor(null, CommitSHA1, fileName, null);
+	CommitSHA1=commit.getSHA1();
 	//go back to very beginning 
 	getinfor.executeCommand("git checkout "+CommitSHA1);
+	
 	//CommitInfo lastCommit=addUnchangedCommit(commit,CommitSHA1,true);
 	if(!commit.equals(null))
 	{
@@ -207,7 +209,7 @@ public static void PrintHistory(CommitInfo lastCommit)
 		outer: while(true)
 		{
 			//commit have no previous commit or commit have more lines we care
-		if(tempCommit.getPreviousCommitSHA1().equals("NoMoreCommit")||tempCommit.getLines().isEmpty())
+		if(tempCommit.getPreviousCommitSHA1().equals("NoMoreCommit")||tempCommit.getLines().isEmpty()&&!tempCommit.getSHA1().equals(CommitSHA1))
 		{
 			if(collapes==true&&tempCommit.getLines().keySet().contains(lineNumber))
 			{
@@ -253,7 +255,7 @@ public static void PrintHistory(CommitInfo lastCommit)
 				}
 			//otherwise find process terminate.
 			else{	
-				if(collapes==true&&tempCommit.getLines().keySet().contains(lineNumber))
+				if(collapes==true&&tempCommit.getLines().keySet().contains(lineNumber)&&!tempCommit.getSHA1().equals(CommitSHA1))
 				{
 					if(FullcommitInfo==false)
 					{
@@ -322,8 +324,9 @@ public static int matchLine(TreeMap<Integer, Line> lines ,int lineNumber,String 
 			
 			if(lines.get(b).getFutureLineNumber()==lineNumber)
 			{
+			//	System.out.println(lines.get(b));
 				//dont print the lines has then same conent when collapes indicated.
-				if(!futureCommit.getLine(lineNumber).getContent().equals(lines.get(b).getContent()))
+				if(!futureCommit.getLine(lineNumber).getContent().equals(lines.get(b).getContent())&&!futureCommit.getSHA1().equals(CommitSHA1))
 				{
 				if(FullcommitInfo==false)
 			System.out.printf("commit:%s ,line number:%d ,content:%s \n",futureCommit.getSHA1().substring(0, 6),
@@ -345,42 +348,7 @@ public static int matchLine(TreeMap<Integer, Line> lines ,int lineNumber,String 
 	 return 0;
 }
 
-public static int collapesMatchLine(TreeMap<Integer, Line> lines ,int lineNumber,String commit,CommitInfo futureCommit)
-{
-	if(lines.isEmpty())
-	{
-		System.out.println();
-		return 0;
-	}
-	
-	CommitInfo temp=CommitInfoContainer.get(commit);
 
-	 for (Integer b:lines.keySet())
-	{
-		 
-		
-		if(lines.get(b).getFutureLineNumber()==lineNumber)
-		{
-			//dont print the lines has then same conent when collapes indicated.
-			if(!futureCommit.getLine(lineNumber).getContent().equals(lines.get(b).getContent()))
-			{
-			if(FullcommitInfo==false)
-		System.out.printf("commit:%s ,line number:%d ,content:%s \n",futureCommit.getSHA1().substring(0, 6),
-				lineNumber,futureCommit.getLine(lineNumber).getContent());
-			else
-			{
-				System.out.printf("commit:%s, line number:%d, author:%10s, date:%s content:%s \n",futureCommit.getSHA1().substring(0, 6)
-						,lineNumber,futureCommit.getAuthor(),
-						futureCommit.getDate(),futureCommit.getLine(lineNumber).getContent());
-			}
-			}
-
-		return b;
-		}
-	
-	}
-	 return 0;
-}
 
 //run recursively get previous/older commit info.
 public static void runRecrusive(CommitInfo commit ) throws ParseException, MissingObjectException, IncorrectObjectTypeException, NullPointerException, IOException
