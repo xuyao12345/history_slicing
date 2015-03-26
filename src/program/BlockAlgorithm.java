@@ -18,57 +18,66 @@ public class BlockAlgorithm {
 			for(int y=0;y<column;y++){
 				Line oldcommitL = (Line) oldcommit.get(oldcommitK[x]);
 				Line newcommitL = (Line) newcommit.get(newcommitK[y]);
+				double temp=EditDistance.editDistance(oldcommitL.getContent(), newcommitL.getContent());
+				if(temp<editdistance)
 				Dmatrix[x][y] = EditDistance.editDistance(oldcommitL.getContent(), newcommitL.getContent());
-				//System.out.println(Dmatrix[x][y]);
+				else Dmatrix[x][y]=Double.MAX_VALUE;
+				System.out.print(Dmatrix[x][y]+" ");
 			}
+			System.out.println();
+
 		}
-		double[][] sortedED = sortDmatrix(Dmatrix,(double) Math.round(editdistance*100)/100);
+		HungarianAlgorithm h=new HungarianAlgorithm(Dmatrix);
+		int[] result=h.execute(); 
 		TreeMap<Integer,Line> Changed = new TreeMap<Integer,Line>();
-		for(int a=0;a<sortedED.length;a++){
-			Line oldcommitLtemp = (Line) oldcommit.get(oldcommitK[(int) sortedED[a][0]]);
-			Line temp = new Line(oldcommitLtemp.getContent(),newcommitK[(int) sortedED[a][1]]);
-			Changed.put(oldcommitK[(int) sortedED[a][0]], temp);
+		for(int a=0;a<result.length;a++){
+			if(result[a]!=-1&&Dmatrix[a][result[a]]<editdistance)
+			{
+			Line oldcommitLtemp = (Line) oldcommit.get(oldcommitK[a]);
+			Line temp = new Line(oldcommitLtemp.getContent(),newcommitK[(int) result[a]]);
+			Changed.put(oldcommitK[a], temp);
+			}
 		}
 		
 		return Changed;
 	}
-	
-	public static double[][] sortDmatrix(double[][] Dmatrix, double editdistance){
-		double[][] result = new double[Math.min(Dmatrix.length, Dmatrix[0].length)][3];
-		boolean temp = true;
-		int countX = 0;
-		
-		for(double distance=0.00; distance<=editdistance;distance=distance+0.01){
-			for(int x=0;x<Dmatrix.length;x++){
-				for(int y=0;y<Dmatrix[0].length;y++){
-					if(Dmatrix[x][y] == (double) Math.round(distance*100)/100){
-						for(int x2=0;x2<countX;x2++){
-							if(x==result[x2][0]||y==result[x2][1]){
-								temp = false;
-								break;
-							}
-						}
-						if(temp==true){
-							result[countX][0] = x;
-							result[countX][1] = y;
-							result[countX][2] = distance;
-							countX++;
-						}
-						temp = true;
-					}
-				}
-			}
-		}
-		
-		double[][] returnresult = new double[countX][3];
-		for(int x=0;x<countX;x++){
-			for(int y=0;y<3;y++){
-				returnresult[x][y] = result[x][y];
-			}
-		}
-		
-		return returnresult;
-	}
+//	
+//	public static double[][] sortDmatrix(double[][] Dmatrix, double editdistance){
+//		double[][] result = new double[Math.min(Dmatrix.length, Dmatrix[0].length)][3];
+//		boolean temp = true;
+//		int countX = 0;
+//		
+//		for(double distance=0.00; distance<=editdistance;distance=distance+0.01){
+//			for(int x=0;x<Dmatrix.length;x++){
+//				for(int y=0;y<Dmatrix[0].length;y++){
+//					if(Dmatrix[x][y] == (double) Math.round(distance*100)/100){
+//						for(int x2=0;x2<countX;x2++){
+//							if(x==result[x2][0]||y==result[x2][1]){
+//								temp = false;
+//								break;
+//							}
+//						}
+//						if(temp==true){
+//							result[countX][0] = x;
+//							result[countX][1] = y;
+//							result[countX][2] = distance;
+//							countX++;
+//						}
+//						temp = true;
+//					}
+//				}
+//			}
+//		}
+//		
+//		double[][] returnresult = new double[countX][3];
+//		for(int x=0;x<countX;x++){
+//			for(int y=0;y<3;y++){
+//				returnresult[x][y] = result[x][y];
+//			}
+//		}
+//		
+//		return returnresult;
+//	}
 	
 	public static void main(String args[]){
 		TreeMap<Integer,Line> oldC = new TreeMap<Integer,Line>();
