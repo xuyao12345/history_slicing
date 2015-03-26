@@ -23,13 +23,15 @@ public double alfa;
 public int beta;
 public double LineThreshold;
 public char pathInterval;
-GetInfor(String path,double alfa,int beta,double LineThreshold,char pathInterval)
+private GItApi gitApi;
+GetInfor(String path,double alfa,int beta,double LineThreshold,char pathInterval,GItApi gitApi)
 {
 	this.path=path;
 	this.alfa=alfa;
 	this.LineThreshold=LineThreshold;
 	this.beta=beta;
 	this.pathInterval=pathInterval;
+	this.gitApi=gitApi;
 }
 
 public String showCommit(String commit,String fileName)
@@ -190,13 +192,13 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 		}
 		else
 		{
-			String diffoutput=executeCommand("git diff "+NextCommit.getSHA1()+" "+commit);
+			String diffoutput=executeCommand("git diff "+NextCommit.getSHA1()+" "+commit+" "+fileName);
 			Vector<TreeMap<Integer,Line>> result=matchUnchanged(diffoutput,lineNumbers,NextCommit);
 			info.addLines(result.get(0));	
 			Set<Integer> tempLineNumber= new TreeSet<Integer>(lineNumbers);
 			tempLineNumber.removeAll(result.get(0).keySet());
-			int oldFilesize=GItApi.getSize(path,fileName, commit,pathInterval);
-			int newFilesize=GItApi.getSize(path,fileName, NextCommit.getSHA1(),pathInterval);
+			int oldFilesize=gitApi.getSize( commit);
+			int newFilesize=gitApi.getSize( NextCommit.getSHA1());
 			Set<Block> block = FindMatchedBlock.FindMatchedBlock(result.get(1),result.get(2));
 			Set<Block> blockafterdeletion = BlockDeletion.BlockDeletion(block,alfa,beta,oldFilesize,newFilesize);
 			Iterator<Block> iterator = blockafterdeletion.iterator();

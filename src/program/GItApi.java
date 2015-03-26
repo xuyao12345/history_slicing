@@ -19,11 +19,11 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 
 public class GItApi {
-	
-	public static int getSize(String dirPath, String fileName, String commitId,char interval) throws MissingObjectException, IncorrectObjectTypeException, IOException, NullPointerException {
-	
-		Repository localRepo;
-		ArrayList<String> relativePath=new ArrayList<String>();
+	private Repository localRepo;
+	private String relativePath;
+	public GItApi(String dirPath, String fileName,char interval) throws IOException{
+		ArrayList<String> relativePathArray=new ArrayList<String>();
+		
 		while(true)
 		{
 		try{
@@ -33,13 +33,27 @@ public class GItApi {
 		}catch(RepositoryNotFoundException a){
 			int lastslash=dirPath.lastIndexOf(interval);
 			String temp=dirPath.substring(lastslash+1);
-			relativePath.add(temp);
+			relativePathArray.add(temp);
 			dirPath=dirPath.substring(0, lastslash);
 		
 			
 			System.out.println(dirPath);
 		}
+		
+		Collections.reverse(relativePathArray);
+		 relativePath=new String();
+		for(String a : relativePathArray)
+		{
+			relativePath+=a+"/";
 		}
+		relativePath+=fileName;
+		}
+		
+	}
+	public  int getSize( String commitId) throws MissingObjectException, IncorrectObjectTypeException, IOException, NullPointerException {
+	
+		
+		
 //		File gitWorkDir = new File(dirPath);
 //		localRepo =Git.open(gitWorkDir).getRepository();
 		
@@ -56,14 +70,8 @@ public class GItApi {
 		// Get the revision's file tree
 		RevTree tree = commit.getTree();
 		// .. and narrow it down to the single file's path
-		Collections.reverse(relativePath);
-		String temp=new String();
-		for(String a : relativePath)
-		{
-			temp+=a+"/";
-		}
-		temp+=fileName;
-		TreeWalk treewalk = TreeWalk.forPath(reader, temp, tree);
+		
+		TreeWalk treewalk = TreeWalk.forPath(reader, relativePath, tree);
 
 		if (treewalk != null) {
 		// use the blob id to read the file's data
