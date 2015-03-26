@@ -329,8 +329,10 @@ public static int matchLine(TreeMap<Integer, Line> lines ,int lineNumber,String 
 				if(!futureCommit.getLine(lineNumber).getContent().equals(lines.get(b).getContent())&&!futureCommit.getSHA1().equals(CommitSHA1))
 				{
 				if(FullcommitInfo==false)
+				{
 			System.out.printf("commit:%s ,line number:%d ,content:%s \n",futureCommit.getSHA1().substring(0, 6),
 					lineNumber,futureCommit.getLine(lineNumber).getContent());
+				}
 				else
 				{
 					System.out.printf("commit:%s, line number:%d, author:%10s, date:%s content:%s \n",futureCommit.getSHA1().substring(0, 6)

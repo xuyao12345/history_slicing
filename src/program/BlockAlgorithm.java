@@ -22,9 +22,9 @@ public class BlockAlgorithm {
 				if(temp<editdistance)
 				Dmatrix[x][y] = EditDistance.editDistance(oldcommitL.getContent(), newcommitL.getContent());
 				else Dmatrix[x][y]=Double.MAX_VALUE;
-				System.out.print(Dmatrix[x][y]+" ");
+				//System.out.print(Dmatrix[x][y]+" ");
 			}
-			System.out.println();
+			//System.out.println();
 
 		}
 		HungarianAlgorithm h=new HungarianAlgorithm(Dmatrix);

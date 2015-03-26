@@ -36,8 +36,6 @@ public class GItApi {
 			relativePathArray.add(temp);
 			dirPath=dirPath.substring(0, lastslash);
 		
-			
-			System.out.println(dirPath);
 		}
 		
 		Collections.reverse(relativePathArray);

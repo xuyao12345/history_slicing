@@ -166,7 +166,7 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			{
 				info.getLines().put(x, new Line(NextCommit.getLine(x).getContent(),x));
 			}
-			System.out.println(info);
+			//System.out.println(info);
 
 			return info;
 		}
@@ -187,7 +187,7 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 				}
 			info.setLines(Setlines);
 		//	System.out.println(Setlines.toString());
-			System.out.println(info);
+		//	System.out.println(info);
 			return info;
 		}
 		else
@@ -212,14 +212,14 @@ public final CommitInfo getCommitInfor(CommitInfo NextCommit,String commit, Stri
 			
 			
 			
-			System.out.println("old:" +oldFilesize+"new"+ newFilesize);
+			//System.out.println("old:" +oldFilesize+"new"+ newFilesize);
 			TreeMap<Integer,Line> temp=BlockAlgorithm.BlockAlgorithm(
 					oldcommit,newcommit,LineThreshold);
 			for(Integer a: temp.keySet()){
 				if(lineNumbers.contains(a))
 				info.addline(a, temp.get(a));
 			}
-			System.out.println(info);
+		//	System.out.println(info);
 			return info;
 			
 		}
