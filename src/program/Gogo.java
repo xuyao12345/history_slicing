@@ -24,7 +24,7 @@ public static void main(String[] args) throws Exception {
 	String fileDir=new String();
 	double alfa=0.2;
 	int beta=5;
-	double lt=0.5;
+	double lt=0.4;
 
 	for(String arg:args)
 	{

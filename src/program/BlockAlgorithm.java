@@ -94,7 +94,7 @@ public class BlockAlgorithm {
 		newC.put(4,new Line("abc",4));
 		
 		
-		TreeMap<Integer,Line> result = BlockAlgorithm(oldC,newC,0.2);
+		TreeMap<Integer,Line> result = BlockAlgorithm(oldC,newC,0.1);
 		System.out.println(result);
 	}
 }
